@@ -1,0 +1,20 @@
+
+c:\users\narut4\appdata\local\programs\python\python311\lib\site-packages (23.1.2)
+
+python.exe -m pip install --upgrade pip
+
+pip freeze > Initial_requirements_freeze.txt
+pip list > Initial_requirements_list.txt
+
+python -m pip install oracledb --upgrade
+python pip install oracledb --upgrade
+-----------------------------------------------------------------------------------------------------------------------
+
+My Libary :
+
+    pip install pandas
+    pip install oracledb
+    pip install xlrd
+    pip install openpyxl
+    pip install matplotlib
+    
