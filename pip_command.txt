@@ -17,4 +17,7 @@ My Libary :
     pip install xlrd
     pip install openpyxl
     pip install matplotlib
+
+    pip install sqlalchemy
+    # pip install cx-Oracle
     
