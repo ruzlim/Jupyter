@@ -5,9 +5,10 @@
 
 WITH W_PARAM AS 
 (
-	SELECT :tm_key_yr AS V_YR
-		, :tm_key_mth AS V_MTH
-		, :tm_key_day AS V_DT 
+	SELECT :yr AS V_YR
+		, :mth_start AS V_MTH_START
+		, :mth_end AS V_MTH_END
+		, :dt AS V_DT 
 	FROM DUAL
 )
 -----------------------------------------------------------------------------------------------------------------------
@@ -23,7 +24,8 @@ FROM GEOSPCAPPO.AGG_PERF_NEWCO NOLOCK
 
 WHERE CENTER IN ('Revenue', 'Sales')
 AND NOT REGEXP_LIKE(METRIC_CD, '[0-9]C$|[0-9]H$|[0-9]MCOM$') --|[0-9]CORP$|[0-9]GEO$|[0-9]A[A-K]$
+AND TM_KEY_MTH BETWEEN (SELECT V_MTH_START FROM W_PARAM) AND (SELECT V_MTH_END FROM W_PARAM)
 -- AND TM_KEY_YR = (SELECT V_YR FROM W_PARAM)
-AND TM_KEY_MTH = (SELECT V_MTH FROM W_PARAM)
+-- AND TM_KEY_MTH = (SELECT V_MTH_END FROM W_PARAM)
 -- AND TM_KEY_DAY = (SELECT V_DT FROM W_PARAM)
 ;
