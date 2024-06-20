@@ -1,5 +1,6 @@
 .DS_Store
 # History
+data
 Legacy
 temp*
-*Agg*.csv
+# *Agg*.csv
