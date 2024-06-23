@@ -49,32 +49,31 @@ def src_upd_to_next_mth(v_last_mth_fct, v_last_mth_src, v_target_schema, v_targe
     target_table = v_target_table
     sql_upd_next_mth = v_sql_upd_next_mth
 
+    v_param = dict(last_mth_fct=last_mth_fct, last_mth_src=last_mth_src)
+
     txt_param_input = f'\nParam input...\n   -> last_mth_fct\n   -> last_mth_src\n   -> target_schema\n   -> target_table\n   -> sql_upd_next_mth'
-    # text = f'Source update to next month Fact'
 
-    # job_start_datetime = dt.datetime.now().strftime('%Y-%m-%d, %H:%M:%S')
-    # print(f'\nJob Start... {job_start_datetime}')
+    # Read : SQL file
+    with open(f'SQL/{sql_upd_next_mth}', 'r') as sql_file:
+        queries = sql_file.read().split(';')
+        query = queries[0].strip()
+        sql_file.close()
 
-    # # Read : SQL file
-    # with open('SQL/Import-FCT_BROADBAND_MKS.sql', 'r') as sql_file:
-    #     queries = sql_file.read().split(';')
-    #     query = queries[0].strip()
-    #     sql_file.close()
+    # Connect : TDMDBPR
+    src_dsn = f'{TDMDBPR_user}/{TDMDBPR_pwd}@{TDMDBPR_host}:{TDMDBPR_port}/{TDMDBPR_db}'
+    src_conn = oracledb.connect(src_dsn)
+    print(f'\n{TDMDBPR_db} : Connected')
+    src_cur = src_conn.cursor()
 
-    # # Connect : TDMDBPR
-    # src_dsn = f'{TDMDBPR_user}/{TDMDBPR_pwd}@{TDMDBPR_host}:{TDMDBPR_port}/{TDMDBPR_db}'
-    # src_conn = oracledb.connect(src_dsn)
-    # print(f'\n{TDMDBPR_db} : Connected')
-    # src_cur = src_conn.cursor()
+    # Connect : AKPIPRD
+    tgt_dsn = f'{AKPIPRD_user}/{AKPIPRD_pwd}@{AKPIPRD_host}:{AKPIPRD_port}/{AKPIPRD_db}'
+    tgt_conn = oracledb.connect(tgt_dsn)
+    print(f'\n{AKPIPRD_db} : Connected')
+    tgt_cur = tgt_conn.cursor()
 
-    # # Connect : AKPIPRD
-    # tgt_dsn = f'{AKPIPRD_user}/{AKPIPRD_pwd}@{AKPIPRD_host}:{AKPIPRD_port}/{AKPIPRD_db}'
-    # tgt_conn = oracledb.connect(tgt_dsn)
-    # print(f'\n{AKPIPRD_db} : Connected')
-    # tgt_cur = tgt_conn.cursor()
 
-    # try:
-    #     print(f'\nProcessing...')
+    try:
+        print(f'\nProcessing...')
         
     #     # Create Dataframe
     #     src_cur.execute(query, v_param)
@@ -84,38 +83,38 @@ def src_upd_to_next_mth(v_last_mth_fct, v_last_mth_src, v_target_schema, v_targe
     #     print(f'\n   -> src_df : {src_df.shape[0]} rows, {src_df.shape[1]} columns') 
 
     #     # Truncate
-    #     # tgt_cur.execute(f'TRUNCATE TABLE {v_target_schema}.{v_target_table}')
-    #     # print(f'\n   -> TRUNCATE : "{v_target_table}" : Done !')
+    #     # tgt_cur.execute(f'TRUNCATE TABLE {target_schema}.{target_table}')
+    #     # print(f'\n   -> TRUNCATE : "{target_table}" : Done !')
 
     #     # Delete
     #     tgt_cur.execute(query_delete)
-    #     print(f'\n   -> DELETE : "{v_target_table}" : Done !')
+    #     print(f'\n   -> DELETE : "{target_table}" : Done !')
         
     #     # Insert
     #     tgt_cur.executemany(f"""
-    #         INSERT INTO {v_target_schema}.{v_target_table}
+    #         INSERT INTO {target_schema}.{target_table}
     #         (TM_KEY_YR, TM_KEY_MTH, TRUE_TM_KEY_WK, TM_KEY_DAY, METRIC_CD, METRIC_NAME, COMP_CD, VERSION, AREA_NO, AREA_TYPE, AREA_CD, AREA_NAME, METRIC_VALUE, AGG_TYPE, FREQUENCY, REMARK) 
     #         VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16)
     #         """, rows)
-    #     print(f'\n   -> INSERT : "{v_target_table}" : Done !')
+    #     print(f'\n   -> INSERT : "{target_table}" : Done !')
 
     #     tgt_cur.close()
     #     tgt_conn.commit()
         
 
-    # except oracledb.DatabaseError as e:
-    #     print(f'\nError with Oracle : {e}')
+    except oracledb.DatabaseError as e:
+        print(f'\nError with Oracle : {e}')
 
 
-    # finally:
-    #     src_conn.close()
-    #     print(f'\n{TDMDBPR_db} : Disconnected')
-    #     tgt_conn.close()
-    #     print(f'\n{AKPIPRD_db} : Disconnected')
-    #     print(f'\nJob Done !!!')
+    finally:
+        src_conn.close()
+        print(f'\n{TDMDBPR_db} : Disconnected')
+        tgt_conn.close()
+        print(f'\n{AKPIPRD_db} : Disconnected')
+        print(f'\nJob Done !!!')
 
 
-    return print(txt_param_input)
+    # return print(txt_param_input)
 
 
 def main():
