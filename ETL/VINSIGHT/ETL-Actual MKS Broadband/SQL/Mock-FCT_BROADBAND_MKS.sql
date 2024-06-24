@@ -3,6 +3,8 @@
 
 -----------------------------------------------------------------------------------------------------------------------
 
+--DELETE AUTOKPI.FCT_BROADBAND_MKS WHERE REMARK IS NOT NULL
+
 INSERT INTO AUTOKPI.FCT_BROADBAND_MKS (TM_KEY_YR, TM_KEY_MTH, TRUE_TM_KEY_WK, TM_KEY_DAY, METRIC_CD, METRIC_NAME, COMP_CD, VERSION, AREA_NO, AREA_TYPE, AREA_CD, AREA_NAME, METRIC_VALUE, AGG_TYPE, FREQUENCY, REMARK)
 
 -----------------------------------------------------------------------------------------------------------------
