@@ -46,7 +46,7 @@ def src_update_to_fact(v_mth_end_fct, v_target_schema, v_target_table, v_sql_upd
     print(f'   -> target_table: {target_table}')
     print(f'   -> sql_update_fact: {sql_update_fact}')
     print(f'   -> v_param: {v_param}')
-    
+
     # Read : SQL file
     with open(f'SQL/{sql_update_fact}', 'r') as sql_file:
         queries = sql_file.read().split(';')
@@ -108,7 +108,6 @@ def src_update_to_fact(v_mth_end_fct, v_target_schema, v_target_table, v_sql_upd
         print(f'\n{TDMDBPR_db} : Disconnected')
         tgt_conn.close()
         print(f'\n{AKPIPRD_db} : Disconnected')
-        print(f'\nJob Done !!!')
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -171,7 +170,6 @@ def mockup_to_fact(v_mth_end_fct, v_target_schema, v_target_table, v_sql_mockup_
     finally:
         tgt_conn.close()
         print(f'\n{AKPIPRD_db} : Disconnected')
-        print(f'\nJob Done !!!')
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 
