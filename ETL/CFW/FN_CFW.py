@@ -37,11 +37,11 @@ def my_metric_group(v_grp, v_cd, v_name):
     name = v_name
     flag = ''
 
-    # Show : Parameter
-    print(f'\nParam input...\n')
-    print(f'   -> grp: {grp}')
-    print(f'   -> cd: {cd}')
-    print(f'   -> name: {name}')
+    # # Show : Parameter
+    # print(f'\nParam input...\n')
+    # print(f'   -> grp: {grp}')
+    # print(f'   -> cd: {cd}')
+    # print(f'   -> name: {name}')
 
     # CORP & MCOM
     if re.search('C$|H$|MCOM$', cd) and (not re.search('A[A-K]$', cd)): flag = 'CORP & MCOM'
