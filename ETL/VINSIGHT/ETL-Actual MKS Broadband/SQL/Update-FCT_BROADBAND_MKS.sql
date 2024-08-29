@@ -1,12 +1,28 @@
 
-/*** Manual step : Initial data for re-run to "AUTOKPI.FCT_BROADBAND_MKS" ***/
+/*** Broadband Marketshare to "AUTOKPI.FCT_BROADBAND_MKS" 
 
+	-->> % MKS
+
+		VIN00019	Broadband Subs Share : AIS & 3BB
+		VIN00020	Broadband Subs Share : TOL
+		VIN00021	Broadband Subs Share : 3BB
+		VIN00022	Broadband Subs Share : AIS
+		VIN00023	Broadband Subs Share : NT
+		
+	-->> Subs
+
+		VIN00024	Broadband Subs Share (Subs) : AIS & 3BB
+		VIN00025	Broadband Subs Share (Subs) : TOL
+		VIN00026	Broadband Subs Share (Subs) : 3BB
+		VIN00027	Broadband Subs Share (Subs) : AIS
+		VIN00028	Broadband Subs Share (Subs) : NT
+***/
 -----------------------------------------------------------------------------------------------------------------------
 
 WITH W_PARAM AS
 (
-	SELECT :initial_mth_start AS V_INI_MTH_START
-		, :initial_mth_end AS V_INI_MTH_END
+	SELECT :mth_end_fct AS V_MTH_END_FCT
+		, TO_NUMBER(TO_CHAR(CURRENT_DATE + 7, 'YYYYMM')) AS V_PREP_MTH_NEXT_WK
 	FROM DUAL
 ) -->> W_PARAM
 -----------------------------------------------------------------------------------------------------------------------
@@ -15,7 +31,8 @@ WITH W_PARAM AS
 (
 	SELECT TM_KEY_YR, TM_KEY_MTH, TRUE_TM_KEY_WK, TM_KEY_DAY
 	FROM CDSAPPO.DIM_TIME NOLOCK
-	WHERE TM_KEY_MTH BETWEEN (SELECT V_INI_MTH_START FROM W_PARAM) AND (SELECT V_INI_MTH_END FROM W_PARAM)
+	WHERE TM_KEY_MTH > (SELECT V_MTH_END_FCT FROM W_PARAM)
+	AND TM_KEY_MTH <= (SELECT V_PREP_MTH_NEXT_WK FROM W_PARAM)
 ) -->> W_PREP_PERIOD
 -----------------------------------------------------------------------------------------------------------------------
 
@@ -31,18 +48,19 @@ WITH W_PARAM AS
 ) -->> W_ORG
 -----------------------------------------------------------------------------------------------------------------------
 
-, W_ACTUAL_DIMENSION_INITIAL AS 
+, W_ACTUAL_DIMENSION AS 
 (
 	SELECT P.TM_KEY_MTH, O.*
 	FROM (
 		SELECT DISTINCT TM_KEY_MTH 
-		FROM W_PREP_PERIOD) P
+		FROM CORPNSBOX.FCT_BB_SHARE_SUBS_CCAATT 
+		WHERE TM_KEY_MTH > (SELECT V_MTH_END_FCT FROM W_PARAM)) P
 	INNER JOIN W_ORG O
 		ON 1=1
-) -->> W_ACTUAL_DIMENSION_INITIAL
+) -->> W_ACTUAL_DIMENSION
 -----------------------------------------------------------------------------------------------------------------------
 
-, W_BB_MKS_RAWDATA_INITIAL AS 
+, W_BB_MKS_RAWDATA AS 
 (
 	SELECT TM_KEY_MTH, ISP, ZONE_TYPE, ORGID_G, TDS_SGMD, ORGID_R, TDS_RGM_CODE, ORGID_H, HOP_HINT, TDS_PROVINCE, PROVINCE_CD, PROVINCE_ENG, ORGID_HH, D_CLUSTER, CCAA, DISTRICT_EN, CCAATT, SUB_DISTRICT_EN, EAST_FLAG
 		, SUM(BASE_SUBS) BASE_SUBS, SUM(SUBS_CHG) SUBS_CHG, SUM(SUBS) SUBS
@@ -52,15 +70,14 @@ WITH W_PARAM AS
 			, D.PROVINCE_CD, D.PROVINCE_ENG, D.ORGID_HH, D.D_CLUSTER
 			, D.CCAA, D.DISTRICT_EN, D.CCAATT, D.SUB_DISTRICT_EN
 			, CASE WHEN (D.ORGID_G = 'GX3' AND D.HOP_HINT NOT LIKE 'SMP%') THEN 'Y' END EAST_FLAG
-		FROM W_ACTUAL_DIMENSION_INITIAL D
+		FROM W_ACTUAL_DIMENSION D
 		LEFT JOIN CORPNSBOX.FCT_BB_SHARE_SUBS_CCAATT A
 			ON D.CCAATT = A.CCAATT
-			AND D.TM_KEY_MTH = A.TM_KEY_MTH
 			AND A.ISP IN ('3BB','AIS','CAT','TOL','TOT')
-			AND A.TM_KEY_MTH BETWEEN (SELECT V_INI_MTH_START FROM W_PARAM) AND (SELECT V_INI_MTH_END FROM W_PARAM)
+			AND A.TM_KEY_MTH > (SELECT V_MTH_END_FCT FROM W_PARAM)
 	) RAWDATA
 	GROUP BY TM_KEY_MTH, ISP, ZONE_TYPE, ORGID_G, TDS_SGMD, ORGID_R, TDS_RGM_CODE, ORGID_H, HOP_HINT, TDS_PROVINCE, PROVINCE_CD, PROVINCE_ENG, ORGID_HH, D_CLUSTER, CCAA, DISTRICT_EN, CCAATT, SUB_DISTRICT_EN, EAST_FLAG
-) -->> W_BB_MKS_RAWDATA_INITIAL
+) -->> W_BB_MKS_RAWDATA
 -----------------------------------------------------------------------------------------------------------------------
 
 , W_BB_MKS_AGG_1 AS 
@@ -72,7 +89,7 @@ WITH W_PARAM AS
 		, SUM(CASE WHEN ISP = 'CAT' THEN SUBS ELSE 0 END) AS SUBS_CAT
 		, SUM(CASE WHEN ISP = 'TOL' THEN SUBS ELSE 0 END) AS SUBS_TOL
 		, SUM(CASE WHEN ISP = 'TOT' THEN SUBS ELSE 0 END) AS SUBS_TOT
-	FROM W_BB_MKS_RAWDATA_INITIAL
+	FROM W_BB_MKS_RAWDATA
 	GROUP BY TM_KEY_MTH, ZONE_TYPE, ORGID_G, TDS_SGMD, ORGID_R, TDS_RGM_CODE, ORGID_H, HOP_HINT, TDS_PROVINCE, PROVINCE_CD, PROVINCE_ENG, ORGID_HH, D_CLUSTER, CCAA, DISTRICT_EN, CCAATT, SUB_DISTRICT_EN, EAST_FLAG
 ) -->> W_BB_MKS_AGG_1
 -----------------------------------------------------------------------------------------------------------------------
@@ -288,7 +305,7 @@ WITH W_PARAM AS
 
 SELECT *
 FROM (
-	-->> Initial data
+	-->> Actual data
 	SELECT P.TM_KEY_YR, P.TM_KEY_MTH, P.TRUE_TM_KEY_WK, P.TM_KEY_DAY
 		, A.METRIC_CD, A.METRIC_NAME
 		, 'TRUE' AS COMP_CD, 'A' AS VERSION
@@ -297,7 +314,21 @@ FROM (
 	FROM W_RAW_BROADBAND_MKS_MONTHLY A
 	LEFT JOIN CDSAPPO.DIM_TIME P
 		ON P.TM_KEY_MTH = A.TM_KEY_MTH
+	
+	UNION ALL 
+	
+	-->> Mockup data
+	SELECT P.TM_KEY_YR, P.TM_KEY_MTH, P.TRUE_TM_KEY_WK, P.TM_KEY_DAY
+		, A.METRIC_CD, A.METRIC_NAME
+		, 'TRUE' AS COMP_CD, 'A' AS VERSION
+		, A.AREA_NO, A.AREA_TYPE, A.AREA_CD, A.AREA_NAME, A.METRIC_VALUE
+		, 'N' AS AGG_TYPE, 'Monthly' AS FREQUENCY
+		, 'Data as of : '||MAX(A.TM_KEY_MTH) OVER(PARTITION BY 1) AS REMARK
+	FROM W_RAW_BROADBAND_MKS_MONTHLY A
+	LEFT JOIN W_PREP_PERIOD P
+		ON P.TM_KEY_MTH > A.TM_KEY_MTH
 ) FCT_BROADBAND_MKS
+
 ORDER BY TM_KEY_DAY, METRIC_CD, AREA_NO, AREA_CD
 ;
 
