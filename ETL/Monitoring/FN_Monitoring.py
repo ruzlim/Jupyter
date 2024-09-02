@@ -30,6 +30,8 @@ def my_metric_group(v_grp, v_cd, v_name):
     # CORP & MCOM
     if re.search('C$|H$|MCOM$', cd) and (not re.search('A[A-K]$', cd)): flag = 'CORP & MCOM'
     elif re.search('CUS$', cd): flag = 'Cust Location'
+    # Finance
+    elif grp == 'Finance': flag = 'Corporate'
     # Revenue
     elif grp == 'Revenue' and any(x in name for x in ['New Revenue', 'Existing Revenue']): flag = 'New/Existing'
     elif grp == 'Revenue' and any(x in name for x in ['Paid Amount', 'On Due', 'Overdue']): flag = 'Paid Amount'
