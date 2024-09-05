@@ -36,6 +36,7 @@ def my_metric_group(v_grp, v_cd, v_name):
     elif grp == 'Revenue' and any(x in name for x in ['New Revenue', 'Existing Revenue']): flag = 'New/Existing'
     elif grp == 'Revenue' and any(x in name for x in ['Paid Amount', 'On Due', 'Overdue']): flag = 'Paid Amount'
     elif grp == 'Revenue' and any(x in name for x in ['Revenue']): flag = 'Revenue'
+    elif grp == 'Revenue' and any(x in name for x in ['ARPU']): flag = 'ARPU'
     # Sales
     elif grp == 'Sales' and any(x in name for x in ['Inflow M1']): flag = 'Inflow M1'
     elif grp == 'Sales' and any(x in name for x in ['Inflow M2']): flag = 'Inflow M2'
@@ -55,6 +56,7 @@ def my_metric_group(v_grp, v_cd, v_name):
     elif grp == 'Subs' and any(x in name for x in ['NAD']): flag = 'NAD'
     elif grp == 'Subs' and any(x in name for x in ['Revenue Subs']): flag = 'Rev Subs'
     # MKS
+    elif grp == 'Market Share' and any(x in name for x in ['Broadband']) & any(x in name for x in ['(Subs)']): flag = 'BB MKS(Subs)'
     elif grp == 'Market Share' and any(x in name for x in ['Broadband']): flag = '%BB MKS'
     elif grp == 'Market Share' and (not any(x in name for x in ['Broadband'])) & any(x in name for x in ['(Subs)']): flag = 'MB MKS(Subs)'
     elif grp == 'Market Share' and (not any(x in name for x in ['Broadband', '(Subs)'])): flag = '%MB MKS'
@@ -62,7 +64,6 @@ def my_metric_group(v_grp, v_cd, v_name):
     elif grp == 'Retention & Churn' and any(x in name for x in ['Churn Subs']): flag = 'Churn Subs'
     elif grp == 'Retention & Churn' and any(x in name for x in ['Churn Rate']): flag = '%Churn Rate'
     # Others
-    elif any(x in name for x in ['ARPU']): flag = 'ARPU'
     elif any(x in name for x in ['SubBase']): flag = 'SubBase'
     elif any(x in name for x in ['New Subs']): flag = 'New Subs'
     elif any(x in name for x in ['Silent']): flag = 'Silent'
