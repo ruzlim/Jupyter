@@ -48,7 +48,7 @@ def src_update_to_fact(v_mth_end_fct, v_target_schema, v_target_table, v_sql_upd
     print(f'   -> v_query_param: {v_query_param}')
 
     # Read : SQL file
-    with open(f'SQL/{sql_update_fact}', 'r', encoding='utf-8') as sql_file:
+    with open(f'SQL/{sql_update_fact}', 'r') as sql_file:
         queries = sql_file.read().split(';')
         query = queries[0].strip()
         sql_file.close()
@@ -84,15 +84,14 @@ def src_update_to_fact(v_mth_end_fct, v_target_schema, v_target_table, v_sql_upd
         tgt_cur.execute(f"""
             DELETE {target_schema}.{target_table} 
             WHERE TM_KEY_MTH > {mth_end_fct}
-            AND METRIC_CD NOT IN ('VIN00019','VIN00020','VIN00021','VIN00022','VIN00023','VIN00024','VIN00025','VIN00026','VIN00027','VIN00028') --Legacy
         """)
         print(f'\n   -> DELETE : "{target_table}" : Done !')
         
         # Insert
         tgt_cur.executemany(f"""
             INSERT INTO {target_schema}.{target_table}
-            (TM_KEY_YR, TM_KEY_MTH, TRUE_TM_KEY_WK, TM_KEY_DAY, METRIC_CD, METRIC_NAME, COMP_CD, VERSION, AREA_NO, AREA_TYPE, AREA_CD, AREA_NAME, METRIC_VALUE, SUBS_VALUE, AGG_TYPE, FREQUENCY, REMARK) 
-            VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16,:17)
+            (TM_KEY_YR, TM_KEY_MTH, TRUE_TM_KEY_WK, TM_KEY_DAY, METRIC_CD, METRIC_NAME, COMP_CD, VERSION, AREA_NO, AREA_TYPE, AREA_CD, AREA_NAME, METRIC_VALUE, AGG_TYPE, FREQUENCY, REMARK) 
+            VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16)
         """, rows)
         print(f'\n   -> INSERT : "{target_table}" : Done !')
 
@@ -133,7 +132,7 @@ def src_initial_to_fact(v_initial_mth_start, v_initial_mth_end, v_target_schema,
     print(f'   -> v_query_param: {v_query_param}')
 
     # Read : SQL file
-    with open(f'SQL/{sql_initial_fact}', 'r', encoding='utf-8') as sql_file:
+    with open(f'SQL/{sql_initial_fact}', 'r') as sql_file:
         queries = sql_file.read().split(';')
         query = queries[0].strip()
         sql_file.close()
@@ -165,15 +164,14 @@ def src_initial_to_fact(v_initial_mth_start, v_initial_mth_end, v_target_schema,
         tgt_cur.execute(f"""
             DELETE {target_schema}.{target_table} 
             WHERE TM_KEY_MTH BETWEEN {initial_mth_start} AND {initial_mth_end}
-            AND METRIC_CD NOT IN ('VIN00019','VIN00020','VIN00021','VIN00022','VIN00023','VIN00024','VIN00025','VIN00026','VIN00027','VIN00028') --Legacy
         """)
         print(f'\n   -> DELETE : "{target_table}" : Done !')
         
         # Insert
         tgt_cur.executemany(f"""
             INSERT INTO {target_schema}.{target_table}
-            (TM_KEY_YR, TM_KEY_MTH, TRUE_TM_KEY_WK, TM_KEY_DAY, METRIC_CD, METRIC_NAME, COMP_CD, VERSION, AREA_NO, AREA_TYPE, AREA_CD, AREA_NAME, METRIC_VALUE, SUBS_VALUE, AGG_TYPE, FREQUENCY, REMARK) 
-            VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16,:17)
+            (TM_KEY_YR, TM_KEY_MTH, TRUE_TM_KEY_WK, TM_KEY_DAY, METRIC_CD, METRIC_NAME, COMP_CD, VERSION, AREA_NO, AREA_TYPE, AREA_CD, AREA_NAME, METRIC_VALUE, AGG_TYPE, FREQUENCY, REMARK) 
+            VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16)
         """, rows)
         print(f'\n   -> INSERT : "{target_table}" : Done !')
 
@@ -212,7 +210,7 @@ def mockup_to_fact(v_mth_end_fct, v_target_schema, v_target_table, v_sql_mockup_
     print(f'   -> v_query_param: {v_query_param}')
 
     # Read : SQL file
-    with open(f'SQL/{sql_mockup_fact}', 'r', encoding='utf-8') as sql_file:
+    with open(f'SQL/{sql_mockup_fact}', 'r') as sql_file:
         queries = sql_file.read().split(';')
         query = queries[0].strip()
         sql_file.close()
@@ -231,7 +229,6 @@ def mockup_to_fact(v_mth_end_fct, v_target_schema, v_target_table, v_sql_mockup_
         tgt_cur.execute(f"""
             DELETE {target_schema}.{target_table} 
             WHERE TM_KEY_MTH > {mth_end_fct}
-            AND METRIC_CD NOT IN ('VIN00019','VIN00020','VIN00021','VIN00022','VIN00023','VIN00024','VIN00025','VIN00026','VIN00027','VIN00028') --Legacy
         """)
         print(f'\n   -> DELETE : "{target_table}" : Done !')
         
