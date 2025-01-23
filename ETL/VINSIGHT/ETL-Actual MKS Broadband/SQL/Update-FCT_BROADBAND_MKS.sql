@@ -1,13 +1,21 @@
 
-/*** Broadband Marketshare to "AUTOKPI.FCT_BROADBAND_MKS" 
+/*** Broadband Marketshare to "AUTOKPI.FCT_BROADBAND_MKS" (version Y2025) 
 
-	-->> % BB MKS (version Y2025)
+-->> % BB MKS
 
-		VIN00080	Broadband Subs Share : AIS & 3BB (New)
-		VIN00081	Broadband Subs Share : TOL (New)
-		VIN00082	Broadband Subs Share : 3BB (New)
-		VIN00083	Broadband Subs Share : AIS (New)
-		VIN00084	Broadband Subs Share : NT (New)
+	VIN00080	Broadband Subs Share : AIS & 3BB (New)
+	VIN00081	Broadband Subs Share : TOL (New)
+	VIN00082	Broadband Subs Share : 3BB (New)
+	VIN00083	Broadband Subs Share : AIS (New)
+	VIN00084	Broadband Subs Share : NT (New)
+
+-->> % BB Subs
+
+	VIN00085	Broadband Subs Share (Subs) : AIS & 3BB
+	VIN00086	Broadband Subs Share (Subs) : TOL
+	VIN00087	Broadband Subs Share (Subs) : 3BB
+	VIN00088	Broadband Subs Share (Subs) : AIS
+	VIN00089	Broadband Subs Share (Subs) : NT
 ***/
 -----------------------------------------------------------------------------------------------------------------------
 
@@ -221,8 +229,10 @@ WITH W_PARAM AS
 
 , W_RAW_BROADBAND_MKS_MONTHLY AS
 (
-	-->> VIN00080	Broadband Subs Share : AIS & 3BB (New)
-	SELECT TM_KEY_MTH, 'AIS & 3BB' AS OPERATOR, '%' AS UOM, 'VIN00080' AS METRIC_CD, 'Broadband Subs Share : AIS & 3BB (New)' AS METRIC_NAME
+-->> % Share
+
+	-->> VIN00080	Broadband Subs Share : AIS & 3BB
+	SELECT TM_KEY_MTH, 'AIS & 3BB' AS OPERATOR, '%' AS UOM, 'VIN00080' AS METRIC_CD, 'Broadband Subs Share : AIS & 3BB' AS METRIC_NAME
 		, AREA_NO, AREA_TYPE, AREA_CD, AREA_NAME
 		, MKS_AISBBB AS METRIC_VALUE
 		, AISBBB AS SUBS_VALUE
@@ -230,8 +240,8 @@ WITH W_PARAM AS
 	
 	UNION ALL 
 	
-	-->> VIN00081	Broadband Subs Share : TOL (New)
-	SELECT TM_KEY_MTH, 'TOL' AS OPERATOR, '%' AS UOM, 'VIN00081' AS METRIC_CD, 'Broadband Subs Share : TOL (New)' AS METRIC_NAME
+	-->> VIN00081	Broadband Subs Share : TOL
+	SELECT TM_KEY_MTH, 'TOL' AS OPERATOR, '%' AS UOM, 'VIN00081' AS METRIC_CD, 'Broadband Subs Share : TOL' AS METRIC_NAME
 		, AREA_NO, AREA_TYPE, AREA_CD, AREA_NAME
 		, MKS_TOL AS METRIC_VALUE
 		, TOL AS SUBS_VALUE
@@ -239,8 +249,8 @@ WITH W_PARAM AS
 	
 	UNION ALL 
 	
-	-->> VIN00082	Broadband Subs Share : 3BB (New)
-	SELECT TM_KEY_MTH, '3BB' AS OPERATOR, '%' AS UOM, 'VIN00082' AS METRIC_CD, 'Broadband Subs Share : 3BB (New)' AS METRIC_NAME
+	-->> VIN00082	Broadband Subs Share : 3BB
+	SELECT TM_KEY_MTH, '3BB' AS OPERATOR, '%' AS UOM, 'VIN00082' AS METRIC_CD, 'Broadband Subs Share : 3BB' AS METRIC_NAME
 		, AREA_NO, AREA_TYPE, AREA_CD, AREA_NAME
 		, MKS_BBB AS METRIC_VALUE
 		, BBB AS SUBS_VALUE
@@ -248,8 +258,8 @@ WITH W_PARAM AS
 	
 	UNION ALL 
 	
-	-->> VIN00083	Broadband Subs Share : AIS (New)
-	SELECT TM_KEY_MTH, 'AIS' AS OPERATOR, '%' AS UOM, 'VIN00083' AS METRIC_CD, 'Broadband Subs Share : AIS (New)' AS METRIC_NAME
+	-->> VIN00083	Broadband Subs Share : AIS
+	SELECT TM_KEY_MTH, 'AIS' AS OPERATOR, '%' AS UOM, 'VIN00083' AS METRIC_CD, 'Broadband Subs Share : AIS' AS METRIC_NAME
 		, AREA_NO, AREA_TYPE, AREA_CD, AREA_NAME
 		, MKS_AIS AS METRIC_VALUE
 		, AIS AS SUBS_VALUE
@@ -257,11 +267,58 @@ WITH W_PARAM AS
 	
 	UNION ALL 
 	
-	-->> VIN00084	Broadband Subs Share : NT (New)
-	SELECT TM_KEY_MTH, 'NT' AS OPERATOR, '%' AS UOM, 'VIN00084' AS METRIC_CD, 'Broadband Subs Share : NT (New)' AS METRIC_NAME
+	-->> VIN00084	Broadband Subs Share : NT
+	SELECT TM_KEY_MTH, 'NT' AS OPERATOR, '%' AS UOM, 'VIN00084' AS METRIC_CD, 'Broadband Subs Share : NT' AS METRIC_NAME
 		, AREA_NO, AREA_TYPE, AREA_CD, AREA_NAME
 		, MKS_NT AS METRIC_VALUE
 		, NT AS SUBS_VALUE
+	FROM W_BB_MKS_AGG
+	
+	UNION ALL 
+	
+-->> No. of Subscriber
+	
+	-->> VIN00085	Broadband Subs Share (Subs) : AIS & 3BB
+	SELECT TM_KEY_MTH, 'AIS & 3BB' AS OPERATOR, 'subs' AS UOM, 'VIN00085' AS METRIC_CD, 'Broadband Subs Share (Subs) : AIS & 3BB' AS METRIC_NAME
+		, AREA_NO, AREA_TYPE, AREA_CD, AREA_NAME
+		, AISBBB AS METRIC_VALUE
+		, NULL AS SUBS_VALUE
+	FROM W_BB_MKS_AGG
+	
+	UNION ALL 
+	
+	-->> VIN00086	Broadband Subs Share (Subs) : TOL
+	SELECT TM_KEY_MTH, 'TOL' AS OPERATOR, 'subs' AS UOM, 'VIN00086' AS METRIC_CD, 'Broadband Subs Share (Subs) : TOL' AS METRIC_NAME
+		, AREA_NO, AREA_TYPE, AREA_CD, AREA_NAME
+		, TOL AS METRIC_VALUE
+		, NULL AS SUBS_VALUE
+	FROM W_BB_MKS_AGG
+	
+	UNION ALL 
+	
+	-->> VIN00087	Broadband Subs Share (Subs) : 3BB
+	SELECT TM_KEY_MTH, '3BB' AS OPERATOR, 'subs' AS UOM, 'VIN00087' AS METRIC_CD, 'Broadband Subs Share (Subs) : 3BB' AS METRIC_NAME
+		, AREA_NO, AREA_TYPE, AREA_CD, AREA_NAME
+		, BBB AS METRIC_VALUE
+		, NULL AS SUBS_VALUE
+	FROM W_BB_MKS_AGG
+	
+	UNION ALL 
+	
+	-->> VIN00088	Broadband Subs Share (Subs) : AIS
+	SELECT TM_KEY_MTH, 'AIS' AS OPERATOR, 'subs' AS UOM, 'VIN00088' AS METRIC_CD, 'Broadband Subs Share (Subs) : AIS' AS METRIC_NAME
+		, AREA_NO, AREA_TYPE, AREA_CD, AREA_NAME
+		, AIS AS METRIC_VALUE
+		, NULL AS SUBS_VALUE
+	FROM W_BB_MKS_AGG
+	
+	UNION ALL 
+	
+	-->> VIN00089	Broadband Subs Share (Subs) : NT
+	SELECT TM_KEY_MTH, 'NT' AS OPERATOR, 'subs' AS UOM, 'VIN00089' AS METRIC_CD, 'Broadband Subs Share (Subs) : NT' AS METRIC_NAME
+		, AREA_NO, AREA_TYPE, AREA_CD, AREA_NAME
+		, NT AS METRIC_VALUE
+		, NULL AS SUBS_VALUE
 	FROM W_BB_MKS_AGG
 ) -->> W_RAW_BROADBAND_MKS_MONTHLY
 -----------------------------------------------------------------------------------------------------------------------
