@@ -30,18 +30,18 @@ AKPIPRD_port = config['AKPIPRD']['port']
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-def src_update_to_fact(v_mth_end_src, v_target_schema, v_target_table, v_sql_update_fact):
+def src_update_to_fact(v_mth_end_fct, v_target_schema, v_target_table, v_sql_update_fact):
 
     # Get : Parameter
-    mth_end_src = v_mth_end_src
+    mth_end_fct = v_mth_end_fct
     target_schema = v_target_schema
     target_table = v_target_table
     sql_update_fact = v_sql_update_fact
-    v_query_param = dict(mth_end_src=mth_end_src)
+    v_query_param = dict(mth_end_fct=mth_end_fct)
 
     # Show : Parameter
     print(f'\nParam input...\n')
-    print(f'   -> mth_end_src: {mth_end_src}')
+    print(f'   -> mth_end_fct: {mth_end_fct}')
     print(f'   -> target_schema: {target_schema}')
     print(f'   -> target_table: {target_table}')
     print(f'   -> sql_update_fact: {sql_update_fact}')
@@ -83,7 +83,7 @@ def src_update_to_fact(v_mth_end_src, v_target_schema, v_target_table, v_sql_upd
         # Delete
         tgt_cur.execute(f"""
             DELETE {target_schema}.{target_table} 
-            WHERE TM_KEY_MTH >= {mth_end_src}
+            WHERE TM_KEY_MTH > {mth_end_fct}
             AND METRIC_CD NOT IN ('VIN00019','VIN00020','VIN00021','VIN00022','VIN00023','VIN00024','VIN00025','VIN00026','VIN00027','VIN00028') --Legacy
         """)
         print(f'\n   -> DELETE : "{target_table}" : Done !')
