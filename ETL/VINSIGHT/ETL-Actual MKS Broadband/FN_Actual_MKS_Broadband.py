@@ -194,18 +194,20 @@ def src_initial_to_fact(v_initial_mth_start, v_initial_mth_end, v_target_schema,
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-def mockup_to_fact(v_mth_end_fct, v_target_schema, v_target_table, v_sql_mockup_fact):
+def mockup_to_fact(v_mth_end_fct, v_mth_end_src, v_target_schema, v_target_table, v_sql_mockup_fact):
 
     # Get : Parameter
     mth_end_fct = v_mth_end_fct
+    mth_end_src = v_mth_end_src
     target_schema = v_target_schema
     target_table = v_target_table
     sql_mockup_fact = v_sql_mockup_fact
-    v_query_param = dict(mth_end_fct=mth_end_fct)
+    v_query_param = dict(mth_end_fct=mth_end_fct, mth_end_src=mth_end_src)
 
     # Show : Parameter
     print(f'\nParam input...\n')
     print(f'   -> mth_end_fct: {mth_end_fct}')
+    print(f'   -> mth_end_src: {mth_end_src}')
     print(f'   -> target_schema: {target_schema}')
     print(f'   -> target_table: {target_table}')
     print(f'   -> sql_mockup_fact: {sql_mockup_fact}')
