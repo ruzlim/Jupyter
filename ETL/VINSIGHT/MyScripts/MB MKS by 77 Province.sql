@@ -1,0 +1,68 @@
+
+
+/*** Rawdata : Mobile MKS by 77 Province ***/
+
+-----------------------------------------------------------------------------------------------------------------------
+
+WITH W_PARAM_PERIOD AS 
+(
+	SELECT TM_KEY_DAY AS END_OF_LAST_MTH
+	FROM GEOSPCAPPO.DIM_TIME_CITRINE
+	WHERE PERIODFLAG IN ('EM', 'EMQ', 'EMQY')
+	AND TM_KEY_MTH = TO_CHAR(ADD_MONTHS(CURRENT_DATE, -1), 'YYYYMM') -->> Automate Last MONTH
+	--AND TM_KEY_MTH BETWEEN 202501 AND 202504 -->> Initial Period
+)
+-----------------------------------------------------------------------------------------------------------------------
+
+, W_MOBILE_SUBS_RAWDATA AS 
+(
+	SELECT SUBSTR(TM_KEY_DAY,1,4) AS TM_KEY_YR, SUBSTR(TM_KEY_DAY,1,6) AS TM_KEY_MTH, 'Mobile' AS PRODUCT
+		, O.PROVINCE_CD, O.PROVINCE_ENG, O.PROVINCE_TH 
+		, SUM(CASE WHEN METRIC_CD IN ('VIN00059', 'VIN00063') THEN ACTUAL_AGG_MTH END) AS "SUBS_TMH & DTAC"
+		, SUM(CASE WHEN METRIC_CD IN ('VIN00060', 'VIN00064') THEN ACTUAL_AGG_MTH END) AS SUBS_AIS
+		, SUM(CASE WHEN METRIC_CD IN ('VIN00061', 'VIN00065') THEN ACTUAL_AGG_MTH END) AS SUBS_TMH
+		, SUM(CASE WHEN METRIC_CD IN ('VIN00062', 'VIN00066') THEN ACTUAL_AGG_MTH END) AS SUBS_DTAC
+		, SUM(CASE WHEN METRIC_CD IN ('VIN00060', 'VIN00064', 'VIN00061', 'VIN00065', 'VIN00062', 'VIN00066') THEN ACTUAL_AGG_MTH END) SUBS_TOTAL
+	
+	FROM GEOSPCAPPO.AGG_PERF_NEWCO A
+	
+	INNER JOIN W_PARAM_PERIOD B
+		ON B.END_OF_LAST_MTH = A.TM_KEY_DAY
+		AND A.METRIC_CD IN (
+			'VIN00063' --Postpaid Subs Share (Subs) : TMH & DTAC
+			, 'VIN00064' --Postpaid Subs Share (Subs) : AIS
+			, 'VIN00065' --Postpaid Subs Share (Subs) : TMH
+			, 'VIN00066' --Postpaid Subs Share (Subs) : DTAC
+			, 'VIN00059' --Prepaid Subs Share (Subs) : TMH & DTAC
+			, 'VIN00060' --Prepaid Subs Share (Subs) : AIS
+			, 'VIN00061' --Prepaid Subs Share (Subs) : TMH
+			, 'VIN00062' --Prepaid Subs Share (Subs) : DTAC
+			) 
+		AND A.AREA_TYPE = 'HH'
+		
+	INNER JOIN (
+		SELECT DISTINCT ORGID_HH, D_CLUSTER
+			, SUBSTR(CCAATT,1,2) AS PROVINCE_CD, PROVINCE_ENG, PROVINCE_TH
+		FROM CDSAPPO.DIM_MOOC_AREA
+		WHERE TEAM_CODE <> 'ไม่ระบุ' AND REMARK <> 'Dummy'
+	) O
+		ON O.ORGID_HH = A.AREA_CD
+		
+	GROUP BY TM_KEY_DAY, O.PROVINCE_CD, O.PROVINCE_ENG, O.PROVINCE_TH 
+)
+-----------------------------------------------------------------------------------------------------------------------
+
+
+/* Rawdata Output */
+
+SELECT TM_KEY_YR, TM_KEY_MTH, PRODUCT, PROVINCE_CD, PROVINCE_ENG, PROVINCE_TH
+	-->> %MKS
+	, "SUBS_TMH & DTAC" / SUBS_TOTAL * 100 AS "MKS_TMH & DTAC"
+	, SUBS_AIS / SUBS_TOTAL * 100 AS MKS_AIS
+	, SUBS_TMH / SUBS_TOTAL * 100 AS MKS_TMH
+	, SUBS_DTAC / SUBS_TOTAL * 100 AS MKS_DTAC
+	-->> Subs
+	, "SUBS_TMH & DTAC", SUBS_AIS, SUBS_TMH, SUBS_DTAC, SUBS_TOTAL
+	, CURRENT_DATE AS LOAD_DATE
+FROM W_MOBILE_SUBS_RAWDATA
+ORDER BY TM_KEY_MTH, PROVINCE_CD
