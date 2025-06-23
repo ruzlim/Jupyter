@@ -51,8 +51,13 @@ def my_metric_group(v_grp, v_cd, v_name):
     elif grp == 'Subs' and any(x in name for x in ['Net Add']): flag = 'Net Adds'
     elif grp == 'Subs' and any(x in name for x in ['%NAD']): flag = '%NAD'
     elif grp == 'Subs' and any(x in name for x in ['%M4']): flag = '%M4'
-    elif grp == 'Subs' and any(x in name for x in ['Reported Sub']): flag = 'Reported Subs'
-    elif grp == 'Subs' and any(x in name for x in ['Usage Subs', 'Active Caller', 'Active Subs']): flag = 'Active Subs'
+    elif grp == 'Subs' and any(x in name for x in ['Usage Subs']): flag = 'Usage Subs'
+    elif grp == 'Subs' and any(x in name for x in ['Active Subs']): flag = 'Active Subs'
+    elif grp == 'Subs' and any(x in name for x in ['Active Caller']): flag = 'Active Caller'
+    elif grp == 'Subs' and any(x in name for x in ['Reported SubBase']): flag = 'Reported Subs'
+    elif grp == 'Subs' and any(x in name for x in ['SubBase']): flag = 'SubBase'
+    elif grp == 'Subs' and any(x in name for x in ['Gain/Loss 60DPD']): flag = 'G/L 60DPD'
+    elif grp == 'Subs' and any(x in name for x in ['60DPD']): flag = '60DPD'
     elif grp == 'Subs' and any(x in name for x in ['NAD']): flag = 'NAD'
     elif grp == 'Subs' and any(x in name for x in ['Revenue Subs']): flag = 'Rev Subs'
     # MKS
@@ -64,10 +69,10 @@ def my_metric_group(v_grp, v_cd, v_name):
     elif grp == 'Retention & Churn' and any(x in name for x in ['Churn Subs']): flag = 'Churn Subs'
     elif grp == 'Retention & Churn' and any(x in name for x in ['Churn Rate']): flag = '%Churn Rate'
     # Others
-    elif any(x in name for x in ['SubBase']): flag = 'SubBase'
+    # elif any(x in name for x in ['SubBase']): flag = 'SubBase'
     elif any(x in name for x in ['New Subs']): flag = 'New Subs'
     elif any(x in name for x in ['Silent']): flag = 'Silent'
-    elif any(x in name for x in ['60DPD']): flag = '60DPD'
+    # elif any(x in name for x in ['60DPD']): flag = '60DPD'
     elif any(x in name for x in ['Quality']): flag = 'Quality'
     else: flag = 'Unknown'
  
