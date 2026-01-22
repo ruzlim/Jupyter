@@ -40,15 +40,15 @@ WITH W_PARAM AS
 ( --7,436 row
 	SELECT DISTINCT ZONE_TYPE
 		, CASE WHEN (ORGID_G = 'GX3' AND HOP_HINT NOT LIKE 'SMP%') THEN 'Y' END EAST_FLAG
-		, ORGID_G, TDS_SGMD--, ORGID_R, TDS_RGM_CODE
-		-- , CASE 	WHEN ORGID_H IN ('003', '004') THEN 'GX3'
-		-- 		WHEN ORGID_H = '30X' THEN 'GX5'
-		-- 		WHEN ORGID_H = '46X' THEN 'GX6'
-		-- 		ELSE ORGID_G END ORGID_G
-		-- , CASE 	WHEN ORGID_H IN ('003', '004') THEN 'Retail Management & Regional Management 3 (East)'
-		-- 		WHEN ORGID_H = '30X' THEN 'Regional Management 5 (Northeast 1)'
-		-- 		WHEN ORGID_H = '46X' THEN 'Regional Management 6 (Northeast 2)'
-		-- 		ELSE TDS_SGMD END TDS_SGMD
+	--	, ORGID_G, TDS_SGMD--, ORGID_R, TDS_RGM_CODE
+		, CASE 	WHEN ORGID_H IN ('003', '004') THEN 'GX3'
+				WHEN ORGID_H = '30X' THEN 'GX5'
+				WHEN ORGID_H = '46X' THEN 'GX6'
+				ELSE ORGID_G END ORGID_G
+		, CASE 	WHEN ORGID_H IN ('003', '004') THEN 'Retail Management & Regional Management 3 (East)'
+				WHEN ORGID_H = '30X' THEN 'Regional Management 5 (Northeast 1)'
+				WHEN ORGID_H = '46X' THEN 'Regional Management 6 (Northeast 2)'
+				ELSE TDS_SGMD END TDS_SGMD
 		, ORGID_H, HOP_HINT--, TDS_PROVINCE
 		, SUBSTR(CCAATT,1,2) AS PROVINCE_CD, PROVINCE_ENG--, PROVINCE_TH
 		, ORGID_HH, D_CLUSTER
