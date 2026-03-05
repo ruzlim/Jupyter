@@ -1,6 +1,7 @@
 .DS_Store
 # History
 data
+output
 Legacy
 temp*
 # *Agg*.csv
