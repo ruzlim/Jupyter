@@ -1,0 +1,33 @@
+,Data Type,Missing Values,% Missing,Unique Values,Zero Values,Mean,Median,Skewness,Potential Issue
+ARPU,float64,575595,7.15,1263580,614142,252.91,199,198.05,High Skew (Outliers); 
+CCAATT,float64,1929,0.02,6626,0,385990.16,331901,0.55,
+SUB_DISTRICT_EN,object,1929,0.02,5133,0,,,,
+DISTRICT_EN,object,1929,0.02,916,0,,,,
+REGION,object,1929,0.02,8,0,,,,
+PROVINCE_EN,object,1929,0.02,77,0,,,,
+CLSTR_GRP,int64,0,0,361,0,15.24,1,4.24,High Skew (Outliers); 
+NN_ID,object,0,0,9732,0,,,,
+TRUEDTAC_MKS,float64,0,0,4572,0,52.44,54.81,-0.79,
+AOU_SIM_RANGE,object,0,0,7,0,,,,
+HH,int64,0,0,3828,0,15706.88,7044,3.8,High Skew (Outliers); 
+POP,int64,0,0,5897,7867,24885.17,12812,2.03,High Skew (Outliers); 
+qk16_cen_longitude,float64,0,0,1389,0,101.01,100.61,1.02,
+qk16_cen_latitude,float64,0,0,2534,0,14.26,13.92,-0.76,
+FLAG_4Yearold-luanch_Device,object,0,0,2,0,,,,
+FLAG_DEVICE_IOS-BELOW-IPHONE11,object,0,0,2,0,,,,
+FLAG_DEVICE_BELOW5G,object,0,0,1,0,,,,
+FLAG_DVC-CONTRACT_EXP3MONTHS,int64,0,0,1,0,1,1,,
+CUSTOMER,object,0,0,2,0,,,,
+DATA_GB_PER_MONTH,float64,0,0,39204,2006474,27.34,8.47,3.33,High Skew (Outliers); 
+DVC_TYPE,object,0,0,3,0,,,,
+MSISDN,int64,0,0,8041158,0,66847582815,66867577945,-0.77,
+mkt_model_name,object,0,0,6995,0,,,,
+handset_model,object,23,0,6593,0,,,,
+mkt_brand_name,object,0,0,606,0,,,,
+IMEI_TAC,int64,0,0,19779,0,64633813.42,86143805,-0.29,
+SITENAME,object,0,0,39413,0,,,,
+ARPU_RANGE,object,0,0,13,0,,,,
+AOU_DEVICE,object,0,0,1,0,,,,
+ACTIVE_IND,object,0,0,1,0,,,,
+ACCOUNT_TYPE,object,0,0,2,0,,,,
+DVC_OS,object,0,0,13,0,,,,
