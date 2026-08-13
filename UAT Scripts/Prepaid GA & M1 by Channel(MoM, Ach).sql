@@ -1,5 +1,3 @@
-
-
 /*** Prepaid GA & M1 by Channel(MoM, Ach) ***/
 
 -----------------------------------------------------------------------------------------------------------------------
@@ -17,8 +15,9 @@ WITH W_PARAM AS
 			-- 20260701::INTEGER AS p_start_date, 20260802::INTEGER AS p_end_date 
 			-- 20260601::INTEGER AS p_start_date, 20260731::INTEGER AS p_end_date 
 			-- 20260625::INTEGER AS p_start_date, 20260705::INTEGER AS p_end_date 
-			20260501::INTEGER AS p_start_date, 20260607::INTEGER AS p_end_date 
+			-- 20260501::INTEGER AS p_start_date, 20260607::INTEGER AS p_end_date 
 			-- 20260501::INTEGER AS p_start_date, 20260603::INTEGER AS p_end_date 
+			20251201::INTEGER AS p_start_date, 20260131::INTEGER AS p_end_date 
 	) TMP
 )
 
@@ -38,11 +37,13 @@ WITH W_PARAM AS
 	FROM EDMAIML_CENTRAL_DATA.DIM_MOOC_AREA
 	WHERE team_code <> 'ไม่ระบุ' AND remark <> 'Dummy'
 	-- AND tds_sgmd = 'North'
-	AND hop_hint = 'CHIANG MAI 1'
+	-- AND hop_hint = 'CHIANG MAI 1'
 	-- AND d_cluster LIKE 'CHIANG MAI%'
-	-- AND PROVINCE_ENG = 'Chiang Mai'
-	-- AND DISTRICT_EN = 'Mueang Chiang Mai'
+	-- AND province_eng = 'Chiang Mai'
+	AND district_en = 'Mueang Chiang Mai'
 ) --> W_ORG
+
+-- SELECT * FROM W_ORG
 -----------------------------------------------------------------------------------------------------------------------
 
 
@@ -193,5 +194,5 @@ OR product = 'ALL'
 
 ORDER BY tm_key_mth, product
 	-- , m1_ach DESC NULLS LAST
-	, m1_mom DESC NULLS LAST, m1_mtd DESC NULLS LAST
-	-- , m1_mtd DESC
+	-- , m1_mom DESC NULLS LAST, m1_mtd DESC NULLS LAST
+	, m1_mtd DESC NULLS LAST

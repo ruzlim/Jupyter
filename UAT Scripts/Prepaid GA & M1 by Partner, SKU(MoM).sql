@@ -20,6 +20,7 @@ WITH W_PARAM AS
 			-- 20260501::INTEGER AS p_start_date, 20260630::INTEGER AS p_end_date 
 			-- 20260501::INTEGER AS p_start_date, 20260610::INTEGER AS p_end_date 
 			-- 20260401::INTEGER AS p_start_date, 20260512::INTEGER AS p_end_date 
+			-- 20260101::INTEGER AS p_start_date, 20260110::INTEGER AS p_end_date 
 			-- 20251201::INTEGER AS p_start_date, 20260131::INTEGER AS p_end_date 
 	) TMP
 )
@@ -53,9 +54,9 @@ WITH W_PARAM AS
 		, ga, ga_partner
 		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY ga_partner DESC NULLS LAST, partner_name) AS ga_top_partner_rnk
 		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY ga_partner NULLS LAST, partner_name) AS ga_bot_partner_rnk
-		, m1, m1_partner
-		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY m1_partner DESC NULLS LAST, partner_name) AS m1_top_partner_rnk
-		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY m1_partner NULLS LAST, partner_name) AS m1_bot_partner_rnk
+		-- , m1, m1_partner
+		-- , DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY m1_partner DESC NULLS LAST, partner_name) AS m1_top_partner_rnk
+		-- , DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY m1_partner NULLS LAST, partner_name) AS m1_bot_partner_rnk
 	FROM (
 		SELECT tm_key_mth, tm_key_day, day, days_in_month--, mom_day
 			, CASE WHEN day <= mom_day THEN 'Y' END mom_flag
@@ -79,15 +80,20 @@ WITH W_PARAM AS
 			-- AND tds_special_channel LIKE '%COM7%'
 			-- AND tds_special_channel LIKE '%True Shop%'
 			AND (tds_special_channel LIKE '7-Eleven%' OR tds_special_channel LIKE 'MT SYNERGY') AND partner_code LIKE '711%'
-			AND EXISTS (SELECT 1 FROM W_ORG O WHERE O.ccaatt = A.partner_ccaatt)
+			-- AND EXISTS (SELECT 1 FROM W_ORG O WHERE O.ccaatt = A.partner_ccaatt)
 			GROUP BY tm_key_mth, tm_key_day, P.MOM_DAY, product, partner_code, partner_name, group_sim
 		) T1
 	) T2
+	WHERE ga <> 0
+	-- WHERE m1 <> 0
 ) --> W_PREPAID
 
--- SELECT * FROM W_PREPAID
--- WHERE (ga_top_partner_rnk <= 3 OR ga_bot_partner_rnk <= 3)
--- ORDER BY tm_key_day, ga_partner DESC
+SELECT tm_key_mth, tm_key_day, product, partner_code, partner_name, group_sim, ga, ga_partner, ga_top_partner_rnk, ga_bot_partner_rnk
+FROM W_PREPAID
+WHERE (ga_top_partner_rnk <= 3 OR ga_bot_partner_rnk <= 3)
+-- WHERE (m1_top_partner_rnk <= 3 OR m1_bot_partner_rnk <= 3)
+ORDER BY tm_key_day, ga_partner DESC
+-- ORDER BY tm_key_day, m1_partner DESC
 -----------------------------------------------------------------------------------------------------------------------
 
 
@@ -131,14 +137,21 @@ WITH W_PARAM AS
 		) T2
 	) T3
 	WHERE tm_key_mth = (SELECT curr_tm_key_mth FROM W_PARAM)
+	AND ga_mtd_partner <> 0
+	-- AND m1_mtd_partner <> 0
 ) --> W_TXN_PARTNER_MOM
 
--- SELECT * FROM W_TXN_PARTNER_MOM
+-- SELECT tm_key_mth, product, partner_code, partner_name
+-- 	-- , ga_mtd_partner, prev_ga_mtd_partner, ga_mom_partner, ga_top_partner_rnk, ga_bot_partner_rnk
+-- 	, m1_mtd_partner--, prev_m1_mtd_partner, m1_mom_partner
+-- 	, m1_top_partner_rnk, m1_bot_partner_rnk
+-- FROM W_TXN_PARTNER_MOM
 -- WHERE (ga_top_partner_rnk <= 3 OR ga_bot_partner_rnk <= 3)
+-- -- WHERE (m1_top_partner_rnk <= 3 OR m1_bot_partner_rnk <= 3)
 -- -- ORDER BY ga_mom_partner DESC NULLS LAST, ga_mtd_partner DESC NULLS LAST
 -- -- ORDER BY ga_mtd_partner DESC NULLS LAST, partner_name
 -- ORDER BY ga_top_partner_rnk
--- -- ORDER BY ga_bot_partner_rnk
+-- -- ORDER BY m1_top_partner_rnk
 -----------------------------------------------------------------------------------------------------------------------
 
 
