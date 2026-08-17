@@ -1,3 +1,5 @@
+
+
 /*** Prepaid GA & M1 by Channel(MoM, Ach) ***/
 
 -----------------------------------------------------------------------------------------------------------------------
@@ -15,9 +17,11 @@ WITH W_PARAM AS
 			-- 20260701::INTEGER AS p_start_date, 20260802::INTEGER AS p_end_date 
 			-- 20260601::INTEGER AS p_start_date, 20260731::INTEGER AS p_end_date 
 			-- 20260625::INTEGER AS p_start_date, 20260705::INTEGER AS p_end_date 
+			-- 20260501::INTEGER AS p_start_date, 20260630::INTEGER AS p_end_date 
 			-- 20260501::INTEGER AS p_start_date, 20260607::INTEGER AS p_end_date 
 			-- 20260501::INTEGER AS p_start_date, 20260603::INTEGER AS p_end_date 
-			20251201::INTEGER AS p_start_date, 20260131::INTEGER AS p_end_date 
+			20260301::INTEGER AS p_start_date, 20260430::INTEGER AS p_end_date 
+			-- 20251201::INTEGER AS p_start_date, 20260131::INTEGER AS p_end_date 
 	) TMP
 )
 
@@ -39,7 +43,6 @@ WITH W_PARAM AS
 	-- AND tds_sgmd = 'North'
 	-- AND hop_hint = 'CHIANG MAI 1'
 	-- AND d_cluster LIKE 'CHIANG MAI%'
-	-- AND province_eng = 'Chiang Mai'
 	AND district_en = 'Mueang Chiang Mai'
 ) --> W_ORG
 
@@ -62,8 +65,6 @@ WITH W_PARAM AS
 			, EXTRACT(day FROM LAST_DAY(TO_DATE(tm_key_day, 'YYYYMMDD')))::INT AS days_in_month
 			, P.mom_day
 			, product, group_channel, tds_special_channel--, group_sub_channel
-			-- , group_sim--, gp_sku
-			-- , partner_code, partner_name
 			, SUM(activation) AS ga
 			, SUM(target_ga) AS ga_target_mth
 			, SUM(activation_value) AS m1
@@ -153,8 +154,8 @@ WITH W_PARAM AS
 --> MTD Summary
 
 SELECT tm_key_mth, product, group_channel, tds_special_channel
-	-- , ga_mtd, ga_ach, ga_mom, ga_target_mtd, ga_mtd_cal, prev_ga_mtd
-	, m1_mtd, m1_ach, m1_mom, m1_target_mtd, m1_mtd_cal, prev_m1_mtd
+	-- , ga_mtd, ga_target_mtd, ga_ach, ga_mom, ga_mtd_cal, prev_ga_mtd
+	, m1_mtd, m1_target_mtd, m1_ach, m1_mom--, m1_mtd_cal, prev_m1_mtd
 
 FROM (
 	SELECT tm_key_mth, 'ALL' AS product, 'ALL' AS group_channel, 'ALL' AS tds_special_channel
@@ -194,5 +195,5 @@ OR product = 'ALL'
 
 ORDER BY tm_key_mth, product
 	-- , m1_ach DESC NULLS LAST
-	-- , m1_mom DESC NULLS LAST, m1_mtd DESC NULLS LAST
-	, m1_mtd DESC NULLS LAST
+	, m1_mom DESC NULLS LAST, m1_mtd DESC NULLS LAST
+	-- , m1_mtd DESC NULLS LAST

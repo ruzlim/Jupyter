@@ -57,7 +57,7 @@ WITH W_PARAM AS
 			, SUM(activation_value) AS m1
 		FROM RWZHDP_CENTRAL_DATA.SL_AGG_DASH_PREPAID_DAY A
 		CROSS JOIN W_PARAM P 
-		WHERE A.tm_key_day BETWEEN P.P_START_DATE AND P.P_END_DATE
+		WHERE A.tm_key_day BETWEEN P.p_start_date AND P.p_end_date
 		AND sub_product IN ('PREPAY', 'INFLOW_M1')
 		AND EXISTS (SELECT 1 FROM W_ORG O WHERE O.ccaatt = A.partner_ccaatt)
 		GROUP BY tm_key_mth, tm_key_day, P.MOM_DAY, product, group_channel, tds_special_channel, partner_code, partner_name

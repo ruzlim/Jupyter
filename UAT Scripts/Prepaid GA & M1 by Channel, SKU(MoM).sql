@@ -2,7 +2,6 @@
 
 /*** Prepaid GA & M1 by Channel, SKU(MoM) ***/
 
-
 -----------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------
 
@@ -14,7 +13,8 @@ WITH W_PARAM AS
 		, SUBSTRING(p_end_date, 1, 6)::INT AS curr_tm_key_mth
 	FROM ( 
 		SELECT 
-			20260802::INTEGER AS p_start_date, 20260802::INTEGER AS p_end_date 
+			-- 20260802::INTEGER AS p_start_date, 20260802::INTEGER AS p_end_date 
+			20260506::INTEGER AS p_start_date, 20260510::INTEGER AS p_end_date 
 	) TMP
 )
 
@@ -40,29 +40,44 @@ WITH W_PARAM AS
 
 , W_PREPAID AS 
 (
-	SELECT tm_key_mth, tm_key_day, day, days_in_month--, mom_day
-		, CASE WHEN day <= mom_day THEN 'Y' END mom_flag
-		, product, group_channel, tds_special_channel, group_sim
-		, ga, m1
+	SELECT tm_key_mth, tm_key_day, day, days_in_month, mom_flag, product, group_channel, tds_special_channel, group_sim
+		-- , ga, ga_channel
+		-- , DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY ga_channel DESC NULLS LAST, group_channel, tds_special_channel) AS ga_top_channel_rnk
+		-- , DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY ga_channel NULLS LAST, group_channel, tds_special_channel) AS ga_bot_channel_rnk
+		, m1, m1_channel
+		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY m1_channel DESC NULLS LAST, group_channel, tds_special_channel) AS m1_top_channel_rnk
+		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY m1_channel NULLS LAST, group_channel, tds_special_channel) AS m1_bot_channel_rnk
 	FROM (
-		SELECT tm_key_mth, tm_key_day
-			, SUBSTRING(tm_key_day, 7, 2)::INT AS day
-			, EXTRACT(day FROM LAST_DAY(TO_DATE(tm_key_day, 'YYYYMMDD')))::INT AS days_in_month
-			, P.mom_day
+		SELECT tm_key_mth, tm_key_day, day, days_in_month--, mom_day
+			, CASE WHEN day <= mom_day THEN 'Y' END mom_flag
 			, product, group_channel, tds_special_channel, group_sim
-			, SUM(activation) AS ga
-			, SUM(activation_value) AS m1
-		FROM RWZHDP_CENTRAL_DATA.SL_AGG_DASH_PREPAID_DAY A
-		CROSS JOIN W_PARAM P 
-		WHERE A.tm_key_day BETWEEN P.P_START_DATE AND P.P_END_DATE
-		AND sub_product IN ('PREPAY', 'INFLOW_M1')
-		AND EXISTS (SELECT 1 FROM W_ORG O WHERE O.ccaatt = A.partner_ccaatt)
-		GROUP BY tm_key_mth, tm_key_day, P.MOM_DAY, product, group_channel, tds_special_channel, group_sim
-	) TMP
+			, ga
+			, SUM(ga) OVER (PARTITION BY tm_key_day, group_channel, tds_special_channel) AS ga_channel
+			, m1
+			, SUM(m1) OVER (PARTITION BY tm_key_day, group_channel, tds_special_channel) AS m1_channel
+		FROM (
+			SELECT tm_key_mth, tm_key_day
+				, SUBSTRING(tm_key_day, 7, 2)::INT AS day
+				, EXTRACT(day FROM LAST_DAY(TO_DATE(tm_key_day, 'YYYYMMDD')))::INT AS days_in_month
+				, P.mom_day
+				, product, group_channel, tds_special_channel, group_sim
+				, SUM(activation) AS ga
+				, SUM(activation_value) AS m1
+			FROM RWZHDP_CENTRAL_DATA.SL_AGG_DASH_PREPAID_DAY A
+			CROSS JOIN W_PARAM P 
+			WHERE A.tm_key_day BETWEEN P.p_start_date AND P.p_end_date
+			AND sub_product IN ('PREPAY', 'INFLOW_M1')
+			AND EXISTS (SELECT 1 FROM W_ORG O WHERE O.ccaatt = A.partner_ccaatt)
+			GROUP BY tm_key_mth, tm_key_day, P.MOM_DAY, product, group_channel, tds_special_channel, group_sim
+		) T1
+	) T2
 ) --> W_PREPAID
 
--- SELECT * FROM W_PREPAID
--- ORDER BY tm_key_day, product, group_channel, tds_special_channel, ga DESC
+SELECT * FROM W_PREPAID
+-- WHERE (ga_top_channel_rnk <= 3 OR ga_bot_channel_rnk <= 3)
+WHERE (m1_top_channel_rnk <= 3 OR m1_bot_channel_rnk <= 3)
+-- ORDER BY tm_key_day, product, ga_top_channel_rnk, group_sim
+ORDER BY tm_key_day, product, m1_top_channel_rnk, group_sim
 -----------------------------------------------------------------------------------------------------------------------
 
 
