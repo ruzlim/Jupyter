@@ -1,6 +1,8 @@
+/*** 
+	Prepaid GA & M1 by Partner, SKU(MoM) 
 
-
-/*** Prepaid GA & M1 by Partner, SKU(MoM) ***/
+		Test Case: 11419, 11396, 11453, 11442, 11387, 11412, 11377, 11375, 11400, 11474
+***/
 
 -----------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------
@@ -17,12 +19,12 @@ WITH W_PARAM AS
 			-- 20260701::INTEGER AS p_start_date, 20260802::INTEGER AS p_end_date 
 			-- 20260601::INTEGER AS p_start_date, 20260731::INTEGER AS p_end_date 
 			-- 20260625::INTEGER AS p_start_date, 20260705::INTEGER AS p_end_date 
-			-- 20260501::INTEGER AS p_start_date, 20260630::INTEGER AS p_end_date 
+			20260501::INTEGER AS p_start_date, 20260630::INTEGER AS p_end_date 
 			-- 20260501::INTEGER AS p_start_date, 20260610::INTEGER AS p_end_date 
 			-- 20260401::INTEGER AS p_start_date, 20260512::INTEGER AS p_end_date 
 			-- 20260101::INTEGER AS p_start_date, 20260110::INTEGER AS p_end_date 
 			-- 20251201::INTEGER AS p_start_date, 20260131::INTEGER AS p_end_date 
-			20250915::INTEGER AS p_start_date, 20250915::INTEGER AS p_end_date 
+			-- 20250915::INTEGER AS p_start_date, 20250915::INTEGER AS p_end_date 
 	) TMP
 )
 
@@ -42,62 +44,62 @@ WITH W_PARAM AS
 	FROM EDMAIML_CENTRAL_DATA.DIM_MOOC_AREA
 	WHERE team_code <> 'ไม่ระบุ' AND remark <> 'Dummy'
 	-- AND tds_sgmd = 'North'
-	AND hop_hint = 'CHIANG MAI 1'
-	-- AND d_cluster LIKE 'CHIANG MAI%'
+	-- AND hop_hint = 'CHIANG MAI 1'
+	AND d_cluster LIKE 'CHIANG MAI%'
 	-- AND province_eng = 'Chiang Mai'
 ) --> W_ORG
 -----------------------------------------------------------------------------------------------------------------------
 
 
-, W_PREPAID_PARTNER AS --by partner
-(
-	SELECT tm_key_mth, tm_key_day, day, days_in_month--, mom_day
-		, CASE WHEN day <= mom_day THEN 'Y' END mom_flag
-		, product, partner_code, partner_name
-		, ga
-		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY ga DESC NULLS LAST, partner_name) AS ga_top_partner_rnk
-		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY ga NULLS LAST, partner_name) AS ga_bot_partner_rnk
-		, m1
-		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY m1 DESC NULLS LAST, partner_name) AS m1_top_partner_rnk
-		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY m1 NULLS LAST, partner_name) AS m1_bot_partner_rnk
-	FROM (
-		SELECT tm_key_mth, tm_key_day
-			, SUBSTRING(tm_key_day, 7, 2)::INT AS day
-			, EXTRACT(day FROM LAST_DAY(TO_DATE(tm_key_day, 'YYYYMMDD')))::INT AS days_in_month
-			, P.mom_day
-			, product, partner_code, partner_name
-			, SUM(activation) AS ga
-			, SUM(activation_value) AS m1
-		FROM RWZHDP_CENTRAL_DATA.SL_AGG_DASH_PREPAID_DAY A
-		CROSS JOIN W_PARAM P 
-		WHERE A.tm_key_day BETWEEN P.p_start_date AND P.p_end_date
-		AND sub_product IN ('PREPAY', 'INFLOW_M1')
-		AND EXISTS (SELECT 1 FROM W_ORG O WHERE O.ccaatt = A.partner_ccaatt)
-		GROUP BY tm_key_mth, tm_key_day, P.MOM_DAY, product, partner_code, partner_name
-	) T1
-	-- WHERE ga <> 0
-	WHERE m1 <> 0
-) --> W_PREPAID
+-- , W_PREPAID_PARTNER AS --by partner
+-- (
+-- 	SELECT tm_key_mth, tm_key_day, day, days_in_month--, mom_day
+-- 		, CASE WHEN day <= mom_day THEN 'Y' END mom_flag
+-- 		, product, partner_code, partner_name
+-- 		, ga
+-- 		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY ga DESC NULLS LAST, partner_name) AS ga_top_partner_rnk
+-- 		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY ga NULLS LAST, partner_name DESC) AS ga_bot_partner_rnk
+-- 		, m1
+-- 		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY m1 DESC NULLS LAST, partner_name) AS m1_top_partner_rnk
+-- 		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY m1 NULLS LAST, partner_name DESC) AS m1_bot_partner_rnk
+-- 	FROM (
+-- 		SELECT tm_key_mth, tm_key_day
+-- 			, SUBSTRING(tm_key_day, 7, 2)::INT AS day
+-- 			, EXTRACT(day FROM LAST_DAY(TO_DATE(tm_key_day, 'YYYYMMDD')))::INT AS days_in_month
+-- 			, P.mom_day
+-- 			, product, partner_code, partner_name
+-- 			, SUM(activation) AS ga
+-- 			, SUM(activation_value) AS m1
+-- 		FROM RWZHDP_CENTRAL_DATA.SL_AGG_DASH_PREPAID_DAY A
+-- 		CROSS JOIN W_PARAM P 
+-- 		WHERE A.tm_key_day BETWEEN P.p_start_date AND P.p_end_date
+-- 		AND sub_product IN ('PREPAY', 'INFLOW_M1')
+-- 		AND EXISTS (SELECT 1 FROM W_ORG O WHERE O.ccaatt = A.partner_ccaatt)
+-- 		GROUP BY tm_key_mth, tm_key_day, P.MOM_DAY, product, partner_code, partner_name
+-- 	) T1
+-- 	-- WHERE ga <> 0
+-- 	WHERE m1 <> 0
+-- ) --> W_PREPAID
 
-SELECT tm_key_mth, tm_key_day, product, partner_code, partner_name
-	-- , ga, ga_top_partner_rnk, ga_bot_partner_rnk
-	, m1, m1_top_partner_rnk, m1_bot_partner_rnk
-FROM W_PREPAID_PARTNER
--- WHERE (ga_top_partner_rnk <= 3 OR ga_bot_partner_rnk <= 3) ORDER BY tm_key_day, ga_top_partner_rnk
-WHERE (m1_top_partner_rnk <= 3 OR m1_bot_partner_rnk <= 3) 
-ORDER BY tm_key_day, m1_top_partner_rnk
+-- SELECT tm_key_mth, tm_key_day, product, partner_code, partner_name
+-- 	-- , ga, ga_top_partner_rnk, ga_bot_partner_rnk
+-- 	, m1, m1_top_partner_rnk, m1_bot_partner_rnk
+-- FROM W_PREPAID_PARTNER
+-- -- WHERE (ga_top_partner_rnk <= 3 OR ga_bot_partner_rnk <= 3) ORDER BY tm_key_day, ga_top_partner_rnk
+-- WHERE (m1_top_partner_rnk <= 3 OR m1_bot_partner_rnk <= 3) 
+-- ORDER BY tm_key_day, m1_top_partner_rnk
 -----------------------------------------------------------------------------------------------------------------------
 
 
-, W_PREPAID AS --by group_sim
+, W_PREPAID AS --by partner, group_sim
 (
 	SELECT tm_key_mth, tm_key_day, day, days_in_month, mom_flag, product, partner_code, partner_name, group_sim
 		, ga, ga_partner
 		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY ga_partner DESC NULLS LAST, partner_name) AS ga_top_partner_rnk
-		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY ga_partner NULLS LAST, partner_name) AS ga_bot_partner_rnk
+		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY ga_partner NULLS LAST, partner_name DESC) AS ga_bot_partner_rnk
 		, m1, m1_partner
 		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY m1_partner DESC NULLS LAST, partner_name) AS m1_top_partner_rnk
-		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY m1_partner NULLS LAST, partner_name) AS m1_bot_partner_rnk
+		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY m1_partner NULLS LAST, partner_name DESC) AS m1_bot_partner_rnk
 	FROM (
 		SELECT tm_key_mth, tm_key_day, day, days_in_month--, mom_day
 			, CASE WHEN day <= mom_day THEN 'Y' END mom_flag
@@ -118,9 +120,9 @@ ORDER BY tm_key_day, m1_top_partner_rnk
 			WHERE A.tm_key_day BETWEEN P.p_start_date AND P.p_end_date
 			AND sub_product IN ('PREPAY', 'INFLOW_M1')
 			-- AND group_channel LIKE '%Branded Retail%' --True Shop ?
-			-- AND tds_special_channel LIKE '%COM7%'
+			AND tds_special_channel LIKE '%COM7%'
 			-- AND tds_special_channel LIKE '%True Shop%'
-			AND (tds_special_channel LIKE '7-Eleven%' OR tds_special_channel LIKE 'MT SYNERGY') AND partner_code LIKE '711%'
+			-- AND (tds_special_channel LIKE '7-Eleven%' OR tds_special_channel LIKE 'MT SYNERGY') AND partner_code LIKE '711%'
 			AND EXISTS (SELECT 1 FROM W_ORG O WHERE O.ccaatt = A.partner_ccaatt)
 			GROUP BY tm_key_mth, tm_key_day, P.MOM_DAY, product, partner_code, partner_name, group_sim
 		) T1
@@ -143,14 +145,10 @@ ORDER BY tm_key_day, m1_top_partner_rnk
 	SELECT tm_key_mth, product, partner_code, partner_name
 		, ga_mtd_partner, prev_ga_mtd_partner, ga_mom_partner
 		, DENSE_RANK() OVER (PARTITION BY tm_key_mth ORDER BY ga_mtd_partner DESC NULLS LAST, partner_name) AS ga_top_partner_rnk
-		, DENSE_RANK() OVER (PARTITION BY tm_key_mth ORDER BY ga_mtd_partner NULLS LAST, partner_name) AS ga_bot_partner_rnk
-		-- , DENSE_RANK() OVER (PARTITION BY tm_key_mth ORDER BY ga_mtd_partner DESC NULLS LAST, ga_mom_partner DESC NULLS LAST, partner_name) AS ga_top_partner_rnk
-		-- , DENSE_RANK() OVER (PARTITION BY tm_key_mth ORDER BY ga_mtd_partner NULLS LAST, ga_mom_partner NULLS LAST, partner_name) AS ga_bot_partner_rnk
+		, DENSE_RANK() OVER (PARTITION BY tm_key_mth ORDER BY ga_mtd_partner NULLS LAST, partner_name DESC) AS ga_bot_partner_rnk
 		, m1_mtd_partner, prev_m1_mtd_partner, m1_mom_partner
 		, DENSE_RANK() OVER (PARTITION BY tm_key_mth ORDER BY m1_mtd_partner DESC NULLS LAST, partner_name) AS m1_top_partner_rnk
-		, DENSE_RANK() OVER (PARTITION BY tm_key_mth ORDER BY m1_mtd_partner NULLS LAST, partner_name) AS m1_bot_partner_rnk
-		-- , DENSE_RANK() OVER (PARTITION BY tm_key_mth ORDER BY m1_mtd_partner DESC NULLS LAST, m1_mom_partner DESC NULLS LAST, partner_name) AS m1_top_partner_rnk
-		-- , DENSE_RANK() OVER (PARTITION BY tm_key_mth ORDER BY m1_mtd_partner NULLS LAST, m1_mom_partner NULLS LAST, partner_name) AS m1_bot_partner_rnk
+		, DENSE_RANK() OVER (PARTITION BY tm_key_mth ORDER BY m1_mtd_partner NULLS LAST, partner_name DESC) AS m1_bot_partner_rnk
 	FROM (
 		SELECT tm_key_mth, product, partner_code, partner_name
 			, ga_mtd_partner, prev_ga_mtd_partner

@@ -1,6 +1,8 @@
+/*** 
+	Prepaid AP1D by SKU(MoM) 
 
-
-/*** Prepaid AP1D by SKU(MoM) ***/
+		Test Case: 11430, 11414, 11389
+***/
 
 -----------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------
@@ -14,6 +16,7 @@ WITH W_PARAM AS
 	FROM ( 
 		SELECT 
 			-- 20260802::INTEGER AS p_start_date, 20260802::INTEGER AS p_end_date 
+			-- 20260701::INTEGER AS p_start_date, 20260802::INTEGER AS p_end_date 
 			20260301::INTEGER AS p_start_date, 20260430::INTEGER AS p_end_date 
 	) TMP
 )

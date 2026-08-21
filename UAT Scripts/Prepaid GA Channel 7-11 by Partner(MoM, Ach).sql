@@ -1,6 +1,8 @@
+/*** 
+	Prepaid GA Channel 7-11 by Partner(MoM, Ach) 
 
-
-/*** Prepaid GA Channel 7-11 by Partner(MoM, Ach) ***/
+		Test Case: 11398, 11473, 11373
+***/
 
 -----------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------
@@ -78,9 +80,9 @@ WITH W_PARAM AS
 	WHERE ga <> 0
 ) --> W_PREPAID
 
-SELECT * FROM W_PREPAID
-WHERE (ga_top_partner_rnk <= 3 OR ga_bot_partner_rnk <= 3)
-ORDER BY tm_key_day, ga_top_partner_rnk
+-- SELECT * FROM W_PREPAID
+-- WHERE (ga_top_partner_rnk <= 3 OR ga_bot_partner_rnk <= 3)
+-- ORDER BY tm_key_day, ga_top_partner_rnk
 -----------------------------------------------------------------------------------------------------------------------
 
 
