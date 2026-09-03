@@ -84,7 +84,18 @@ def src_update_to_fact(v_mth_end_src, v_target_schema, v_target_table, v_sql_upd
         tgt_cur.execute(f"""
             DELETE {target_schema}.{target_table} 
             WHERE TM_KEY_MTH >= {mth_end_src}
-            AND METRIC_CD NOT IN ('VIN00019','VIN00020','VIN00021','VIN00022','VIN00023','VIN00024','VIN00025','VIN00026','VIN00027','VIN00028') --Legacy
+            AND METRIC_CD IN (
+                ' VIN00080' --Broadband Subs Share : AIS & 3BB
+                , 'VIN00081' --Broadband Subs Share : TOL
+                , 'VIN00082' --Broadband Subs Share : 3BB
+                , 'VIN00083' --Broadband Subs Share : AIS
+                , 'VIN00084' --Broadband Subs Share : NT
+                , 'VIN00085' --Broadband Subs Share (Subs) : AIS & 3BB
+                , 'VIN00086' --Broadband Subs Share (Subs) : TOL
+                , 'VIN00087' --Broadband Subs Share (Subs) : 3BB
+                , 'VIN00088' --Broadband Subs Share (Subs) : AIS
+                , 'VIN00089' --Broadband Subs Share (Subs) : NT
+                )
         """)
         print(f'\n   -> DELETE : "{target_table}" : Done !')
         
@@ -165,7 +176,18 @@ def src_initial_to_fact(v_initial_mth_start, v_initial_mth_end, v_target_schema,
         tgt_cur.execute(f"""
             DELETE {target_schema}.{target_table} 
             WHERE TM_KEY_MTH BETWEEN {initial_mth_start} AND {initial_mth_end}
-            AND METRIC_CD NOT IN ('VIN00019','VIN00020','VIN00021','VIN00022','VIN00023','VIN00024','VIN00025','VIN00026','VIN00027','VIN00028') --Legacy
+            AND METRIC_CD IN (
+                ' VIN00080' --Broadband Subs Share : AIS & 3BB
+                , 'VIN00081' --Broadband Subs Share : TOL
+                , 'VIN00082' --Broadband Subs Share : 3BB
+                , 'VIN00083' --Broadband Subs Share : AIS
+                , 'VIN00084' --Broadband Subs Share : NT
+                , 'VIN00085' --Broadband Subs Share (Subs) : AIS & 3BB
+                , 'VIN00086' --Broadband Subs Share (Subs) : TOL
+                , 'VIN00087' --Broadband Subs Share (Subs) : 3BB
+                , 'VIN00088' --Broadband Subs Share (Subs) : AIS
+                , 'VIN00089' --Broadband Subs Share (Subs) : NT
+                )
         """)
         print(f'\n   -> DELETE : "{target_table}" : Done !')
         
@@ -233,7 +255,18 @@ def mockup_to_fact(v_mth_end_fct, v_mth_end_src, v_target_schema, v_target_table
         tgt_cur.execute(f"""
             DELETE {target_schema}.{target_table} 
             WHERE TM_KEY_MTH > {mth_end_fct}
-            AND METRIC_CD NOT IN ('VIN00019','VIN00020','VIN00021','VIN00022','VIN00023','VIN00024','VIN00025','VIN00026','VIN00027','VIN00028') --Legacy
+            AND METRIC_CD IN (
+                ' VIN00080' --Broadband Subs Share : AIS & 3BB
+                , 'VIN00081' --Broadband Subs Share : TOL
+                , 'VIN00082' --Broadband Subs Share : 3BB
+                , 'VIN00083' --Broadband Subs Share : AIS
+                , 'VIN00084' --Broadband Subs Share : NT
+                , 'VIN00085' --Broadband Subs Share (Subs) : AIS & 3BB
+                , 'VIN00086' --Broadband Subs Share (Subs) : TOL
+                , 'VIN00087' --Broadband Subs Share (Subs) : 3BB
+                , 'VIN00088' --Broadband Subs Share (Subs) : AIS
+                , 'VIN00089' --Broadband Subs Share (Subs) : NT
+                )
         """)
         print(f'\n   -> DELETE : "{target_table}" : Done !')
         
