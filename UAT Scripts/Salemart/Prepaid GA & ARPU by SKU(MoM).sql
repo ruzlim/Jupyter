@@ -15,6 +15,7 @@ WITH W_PARAM AS
 			20260802::INTEGER AS p_start_date, 20260802::INTEGER AS p_end_date 
 			-- 20260604::INTEGER AS p_start_date, 20260610::INTEGER AS p_end_date 
 			-- 20260201::INTEGER AS p_start_date, 20260312::INTEGER AS p_end_date 
+			20250917::INTEGER AS p_start_date, 20250917::INTEGER AS p_end_date 
 	) TMP
 )
 

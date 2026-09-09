@@ -1,7 +1,8 @@
 /*** 
 	Prepaid GA & M1 by Channel, Partner(MoM) 
 
-		Test Case: 11388, 11395, 11379, 11410
+		Test Case 1: 11388, 11395, 11379, 11410
+		Test Case 2: 11434
 ***/
 
 -----------------------------------------------------------------------------------------------------------------------
@@ -16,8 +17,9 @@ WITH W_PARAM AS
 	FROM ( 
 		SELECT 
 			-- 20260802::INTEGER AS p_start_date, 20260802::INTEGER AS p_end_date 
-      		20260701::INTEGER AS p_start_date, 20260802::INTEGER AS p_end_date 
+      		-- 20260701::INTEGER AS p_start_date, 20260802::INTEGER AS p_end_date 
 			-- 20260401::INTEGER AS p_start_date, 20260531::INTEGER AS p_end_date 
+			20250801::INTEGER AS p_start_date, 20250926::INTEGER AS p_end_date 
 	) TMP
 )
 
@@ -37,7 +39,7 @@ WITH W_PARAM AS
 	FROM EDMAIML_CENTRAL_DATA.DIM_MOOC_AREA
 	WHERE team_code <> 'ไม่ระบุ' AND remark <> 'Dummy'
 	-- AND tds_sgmd = 'North'
-	-- AND hop_hint = 'CHIANG MAI 1'
+	AND hop_hint = 'CHIANG MAI 1'
 	-- AND d_cluster LIKE 'CHIANG MAI%'
 	-- AND province_eng = 'Chiang Mai'
 	-- AND district_en = 'Mueang Chiang Mai'
@@ -64,7 +66,7 @@ WITH W_PARAM AS
 		WHERE A.tm_key_day BETWEEN P.p_start_date AND P.p_end_date
 		AND sub_product IN ('PREPAY', 'INFLOW_M1')
 		AND EXISTS (SELECT 1 FROM W_ORG O WHERE O.ccaatt = A.partner_ccaatt)
-		GROUP BY tm_key_mth, tm_key_day, P.MOM_DAY, product, group_channel, tds_special_channel, partner_code, partner_name
+		GROUP BY tm_key_mth, tm_key_day, P.mom_day, product, group_channel, tds_special_channel, partner_code, partner_name
 	) TMP
 ) --> W_PREPAID
 
@@ -118,13 +120,14 @@ WITH W_PARAM AS
 		) T2
 	) T3
 	WHERE tm_key_mth = (SELECT curr_tm_key_mth FROM W_PARAM)
-	AND ga_mom_channel < 0
+	-- AND ga_mom_channel < 0
+	AND m1_mom_channel < 0
 ) --> W_TXN_CHANNEL_MOM
 
 -- SELECT * FROM W_TXN_CHANNEL_MOM
 -- -- WHERE (ga_top_channel_rnk <= 3 OR ga_bot_channel_rnk <= 3)
--- ORDER BY ga_top_channel_rnk
--- -- ORDER BY ga_bot_channel_rnk
+-- -- ORDER BY ga_top_channel_rnk
+-- ORDER BY m1_top_channel_rnk
 -----------------------------------------------------------------------------------------------------------------------
 
 
@@ -284,23 +287,69 @@ WITH W_PARAM AS
 -----------------------------------------------------------------------------------------------------------------------
 
 
---> %MoM - by channel, partner
+--> GA %MoM - by channel, partner
+
+-- SELECT tm_key_mth, product, group_channel, tds_special_channel, partner_code, partner_name
+-- 	, ga_mtd, ga_mom, ga_mtd_cal, prev_ga_mtd, ga_mtd_channel, ga_mom_channel, ga_top_channel_rnk, ga_bot_channel_rnk
+
+-- FROM (
+-- 	SELECT tm_key_mth, 'ALL' AS product, 'ALL' AS group_channel, 'ALL' AS tds_special_channel, 'ALL' AS partner_code, 'ALL' AS partner_name
+-- 		-- Gross Adds
+-- 		, ga_mtd
+-- 		, CASE WHEN prev_ga_mtd <> 0 THEN (ga_mtd_cal - prev_ga_mtd) / prev_ga_mtd * 100 END ga_mom
+-- 		, ga_mtd_cal, prev_ga_mtd
+-- 		, NULL AS ga_mtd_channel, NULL AS ga_mom_channel, NULL AS ga_top_channel_rnk, NULL AS ga_bot_channel_rnk
+-- 	FROM (
+-- 		SELECT tm_key_mth
+-- 			, SUM(ga_mtd) AS ga_mtd
+-- 			, SUM(ga_mtd_cal) AS ga_mtd_cal
+-- 			, SUM(prev_ga_mtd) AS prev_ga_mtd
+-- 		FROM W_TXN_MTD
+-- 		GROUP BY tm_key_mth
+-- 	) TOTAL_MTD
+	
+-- 	UNION ALL 
+	
+-- 	SELECT A.tm_key_mth, A.product, A.group_channel, A.tds_special_channel, A.partner_code, A.partner_name
+-- 		, ga_mtd, ga_mom, ga_mtd_cal, prev_ga_mtd, C.ga_mtd_channel, C.ga_mom_channel, C.ga_top_channel_rnk, C.ga_bot_channel_rnk
+-- 	FROM W_TXN_MTD A
+-- 	INNER JOIN W_TXN_CHANNEL_MOM C
+-- 		ON C.tm_key_mth = A.tm_key_mth
+-- 		AND C.group_channel = A.group_channel
+-- 		AND C.tds_special_channel = A.tds_special_channel
+-- 		AND (C.ga_top_channel_rnk <= 3 OR C.ga_bot_channel_rnk <= 3)
+-- ) MTD_SUMMARY
+
+-- -- WHERE ga_mom IS NOT NULL
+-- WHERE ga_mom < 0
+
+-- ORDER BY tm_key_mth, product, ga_top_channel_rnk, ga_mom NULLS LAST, partner_name
+-----------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------
+
+
+--> M1 %MoM - by channel, partner
 
 SELECT tm_key_mth, product, group_channel, tds_special_channel, partner_code, partner_name
-	, ga_mtd, ga_mom, ga_mtd_cal, prev_ga_mtd, ga_mtd_channel, ga_mom_channel, ga_top_channel_rnk, ga_bot_channel_rnk
+	, ga_mtd
+	, m1_mtd, m1_mom--, m1_mtd_cal, prev_m1_mtd
+	, m1_mtd_channel, m1_mom_channel, m1_top_channel_rnk, m1_bot_channel_rnk
 
 FROM (
 	SELECT tm_key_mth, 'ALL' AS product, 'ALL' AS group_channel, 'ALL' AS tds_special_channel, 'ALL' AS partner_code, 'ALL' AS partner_name
 		-- Gross Adds
 		, ga_mtd
-		, CASE WHEN prev_ga_mtd <> 0 THEN (ga_mtd_cal - prev_ga_mtd) / prev_ga_mtd * 100 END ga_mom
-		, ga_mtd_cal, prev_ga_mtd
-		, NULL AS ga_mtd_channel, NULL AS ga_mom_channel, NULL AS ga_top_channel_rnk, NULL AS ga_bot_channel_rnk
+		-- Inflow M1
+		, m1_mtd
+		, CASE WHEN prev_m1_mtd <> 0 THEN (m1_mtd_cal - prev_m1_mtd) / prev_m1_mtd * 100 END m1_mom
+		, m1_mtd_cal, prev_m1_mtd
+		, NULL AS m1_mtd_channel, NULL AS m1_mom_channel, NULL AS m1_top_channel_rnk, NULL AS m1_bot_channel_rnk
 	FROM (
 		SELECT tm_key_mth
 			, SUM(ga_mtd) AS ga_mtd
-			, SUM(ga_mtd_cal) AS ga_mtd_cal
-			, SUM(prev_ga_mtd) AS prev_ga_mtd
+			, SUM(m1_mtd) AS m1_mtd
+			, SUM(m1_mtd_cal) AS m1_mtd_cal
+			, SUM(prev_m1_mtd) AS prev_m1_mtd
 		FROM W_TXN_MTD
 		GROUP BY tm_key_mth
 	) TOTAL_MTD
@@ -308,16 +357,16 @@ FROM (
 	UNION ALL 
 	
 	SELECT A.tm_key_mth, A.product, A.group_channel, A.tds_special_channel, A.partner_code, A.partner_name
-		, ga_mtd, ga_mom, ga_mtd_cal, prev_ga_mtd, C.ga_mtd_channel, C.ga_mom_channel, C.ga_top_channel_rnk, C.ga_bot_channel_rnk
+		, ga_mtd
+		, m1_mtd, m1_mom, m1_mtd_cal, prev_m1_mtd, C.m1_mtd_channel, C.m1_mom_channel, C.m1_top_channel_rnk, C.m1_bot_channel_rnk
 	FROM W_TXN_MTD A
 	INNER JOIN W_TXN_CHANNEL_MOM C
 		ON C.tm_key_mth = A.tm_key_mth
 		AND C.group_channel = A.group_channel
 		AND C.tds_special_channel = A.tds_special_channel
-		AND (C.ga_top_channel_rnk <= 3 OR C.ga_bot_channel_rnk <= 3)
+		AND (C.m1_top_channel_rnk <= 3 OR C.m1_bot_channel_rnk <= 3)
 ) MTD_SUMMARY
 
--- WHERE ga_mom IS NOT NULL
-WHERE ga_mom < 0
+WHERE m1_mom < 0
 
-ORDER BY tm_key_mth, product, ga_top_channel_rnk, ga_mom NULLS LAST, partner_name
+ORDER BY tm_key_mth, product, m1_top_channel_rnk, m1_mom NULLS LAST, partner_name

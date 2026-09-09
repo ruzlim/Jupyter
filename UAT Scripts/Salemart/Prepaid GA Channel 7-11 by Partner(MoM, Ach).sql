@@ -1,7 +1,8 @@
 /*** 
 	Prepaid GA Channel 7-11 by Partner(MoM, Ach) 
 
-		Test Case: 11398, 11473, 11373
+		Test Case 1: 11398, 11473, 11373
+		Test Case 2: 11445, 11460
 ***/
 
 -----------------------------------------------------------------------------------------------------------------------
@@ -15,10 +16,11 @@ WITH W_PARAM AS
         , SUBSTRING(p_end_date, 1, 6)::INT AS curr_tm_key_mth
 	FROM ( 
 		SELECT 
-			20260802::INTEGER AS p_start_date, 20260802::INTEGER AS p_end_date 
+			-- 20260802::INTEGER AS p_start_date, 20260802::INTEGER AS p_end_date 
+			-- 20260501::INTEGER AS p_start_date, 20260610::INTEGER AS p_end_date 
 			-- 20260515::INTEGER AS p_start_date, 20260520::INTEGER AS p_end_date 
 			-- 20260105::INTEGER AS p_start_date, 20260105::INTEGER AS p_end_date 
-			-- 20250601::INTEGER AS p_start_date, 20250731::INTEGER AS p_end_date 
+			20250601::INTEGER AS p_start_date, 20250731::INTEGER AS p_end_date 
 	) TMP
 )
 
@@ -37,7 +39,8 @@ WITH W_PARAM AS
 		, ccaatt, sub_district_en, sub_district_th 
 	FROM EDMAIML_CENTRAL_DATA.DIM_MOOC_AREA
 	WHERE team_code <> 'ไม่ระบุ' AND remark <> 'Dummy'
-	AND hop_hint = 'CHIANG MAI 1'
+	-- AND hop_hint = 'CHIANG MAI 1'
+	-- AND d_cluster LIKE 'CHIANG MAI%'
 ) --> W_ORG
 
 -- SELECT * FROM W_ORG
@@ -46,7 +49,6 @@ WITH W_PARAM AS
 
 , W_PREPAID AS 
 (
-
 	SELECT tm_key_mth, tm_key_day, day, days_in_month, mom_flag, product, partner_code, partner_name
 		, ga, ga_target_mth, ga_target
 		, DENSE_RANK() OVER (PARTITION BY tm_key_day ORDER BY ga DESC NULLS LAST, partner_name) AS ga_top_partner_rnk
@@ -74,14 +76,14 @@ WITH W_PARAM AS
 			AND group_sim IN ('MASS', 'MIGRANT')
 			AND (tds_special_channel LIKE '7-Eleven%' OR tds_special_channel LIKE 'MT SYNERGY') 
 			AND EXISTS (SELECT 1 FROM W_ORG O WHERE O.ccaatt = A.partner_ccaatt)
-			GROUP BY tm_key_mth, tm_key_day, P.MOM_DAY, product, partner_code, partner_name
+			GROUP BY tm_key_mth, tm_key_day, P.mom_day, product, partner_code, partner_name
 		) T1
 	) T2
 	WHERE ga <> 0
 ) --> W_PREPAID
 
 -- SELECT * FROM W_PREPAID
--- WHERE (ga_top_partner_rnk <= 3 OR ga_bot_partner_rnk <= 3)
+-- -- WHERE (ga_top_partner_rnk <= 3 OR ga_bot_partner_rnk <= 3)
 -- ORDER BY tm_key_day, ga_top_partner_rnk
 -----------------------------------------------------------------------------------------------------------------------
 
@@ -103,6 +105,7 @@ WITH W_PARAM AS
 			GROUP BY tm_key_mth, product, partner_code, partner_name
 		) T1
 	) T2
+	WHERE tm_key_mth = (select curr_tm_key_mth from W_PARAM)
 ) --> W_TXN_MOM
 
 -- SELECT * FROM W_TXN_MOM
@@ -115,6 +118,8 @@ WITH W_PARAM AS
 		, A.ga_mtd, A.ga_ach, B.ga_mom
 		, A.ga_target_mtd
 		, B.ga_mtd AS ga_mtd_cal, B.prev_ga_mtd
+		, DENSE_RANK() OVER (PARTITION BY A.tm_key_mth ORDER BY A.ga_mtd DESC NULLS LAST, A.ga_ach DESC NULLS LAST, B.ga_mom DESC NULLS LAST, A.partner_name) AS ga_top_partner_rnk
+		, DENSE_RANK() OVER (PARTITION BY A.tm_key_mth ORDER BY A.ga_mtd NULLS LAST, A.ga_ach NULLS LAST, B.ga_mom NULLS LAST, A.partner_name) AS ga_bot_partner_rnk
 	FROM (
 		SELECT tm_key_mth, product, partner_code, partner_name
 			, ga_mtd, ga_target_mtd
@@ -133,6 +138,7 @@ WITH W_PARAM AS
 ) --> W_TXN_MTD
 
 -- SELECT * FROM W_TXN_MTD
+-- ORDER BY ga_top_partner_rnk
 -----------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------
 
@@ -147,6 +153,7 @@ FROM (
 		, CASE WHEN ga_target_mtd <> 0 THEN ga_mtd / ga_target_mtd * 100 END ga_ach
 		, CASE WHEN prev_ga_mtd <> 0 THEN (ga_mtd_cal - prev_ga_mtd) / prev_ga_mtd * 100 END ga_mom
 		, ga_target_mtd, ga_mtd_cal, prev_ga_mtd
+		, NULL AS ga_top_partner_rnk, NULL AS ga_bot_partner_rnk
 	FROM (
 		SELECT tm_key_mth
 			, SUM(ga_mtd) AS ga_mtd
@@ -162,6 +169,6 @@ FROM (
 	SELECT * FROM W_TXN_MTD
 ) MTD_SUMMARY
 
-WHERE tm_key_mth = (select curr_tm_key_mth from W_PARAM)
+WHERE product = 'ALL' OR (ga_top_partner_rnk <= 3 OR ga_bot_partner_rnk <= 3)
 
-ORDER BY tm_key_mth, product, ga_ach DESC NULLS LAST, ga_mtd DESC
+ORDER BY tm_key_mth, product, ga_top_partner_rnk
