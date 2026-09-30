@@ -36,13 +36,16 @@ SELECT
     t.transaction_prompt_timestamp,
     t.load_timestamp,
     t.data_dt,
+    
     u.user_id,
     u.user_transaction_year,
     u.usr_transaction_month,
     u.user_transaction_week,
     u.user_segment,
     u.user_report_date
+
 FROM chatlog_bi_gold.vw_user_chat_transactions t
+
 LEFT JOIN (
     SELECT
         emp_id          AS user_id,
@@ -53,7 +56,7 @@ LEFT JOIN (
         report_date       AS user_report_date
     FROM chatlog_bi_gold.vw_chat_user_behavior
 ) u
-ON  t.emp_id            = u.user_id
-AND t.transaction_year  = u.user_transaction_year
-AND t.transaction_month = u.usr_transaction_month
-AND t.transaction_week  = u.user_transaction_week
+    ON  t.emp_id            = u.user_id
+    AND t.transaction_year  = u.user_transaction_year
+    AND t.transaction_month = u.usr_transaction_month
+    AND t.transaction_week  = u.user_transaction_week
